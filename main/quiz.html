@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trắc Nghiệm | Vocabulary Manager</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+   <style>
+  /* --- MODIFIED: Softer Design System from vocabulary.html, updated to blue
+  
+  --- */
+  
+  /* Chỉ áp dụng cho thiết bị cảm ứng để không ảnh hưởng keyboard users */
+@media (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent; /* iOS, Chrome mobile */
+    -webkit-touch-callout: none;              /* tắt menu giữ chạm (iOS) nếu cần */
+  }
+}
+
+:root {
+    --bg: #ffffff;
+    --bg-soft: #f0f8ff; /* A very light blue */
+    --text: #343a40;
+    --text-muted: #6c757d;
+    --border: #e9ecef;
+    --radius: 14px;
+    --shadow: 0 8px 24px rgba(16, 16, 16, 0.05);
+    --accent: #007bff; /* Main blue color */
+    --accent-dark: #0056b3; /* A darker blue for hover */
+    --success: #28a745;
+    --error: #dc3545;
+    --warning: #ffc107;
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Inter", sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    background: var(--bg-soft);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    animation: fadeIn 0.5s ease-out;
+}
+
+.container {
+    width: 100%;
+    max-width: 800px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.back-button {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--bg);
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background: var(--bg-soft);
+    color: var(--accent);
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.quiz-container, .result-container {
+    background: var(--bg);
+    padding: 2rem;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.progress {
+    height: 100%;
+    background: var(--accent);
+    transition: width 0.3s ease;
+}
+
+.quiz-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.quiz-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.quiz-info {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.timer {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--accent);
+}
+
+.question-container {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.question {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.phonetic {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.play-audio-btn {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.2rem;
+    margin-left: 0.5rem;
+    transition: color 0.2s ease;
+}
+
+.play-audio-btn:hover {
+    color: var(--accent);
+}
+
+.options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.option {
+    padding: 1rem;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    cursor: pointer;
+    background: var(--bg);
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    font-weight: 500;
+    text-align: center;
+}
+
+.option:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.option.selected {
+    border-color: var(--accent);
+    background: var(--bg-soft);
+    color: var(--accent);
+    font-weight: 600;
+}
+
+.option.correct {
+    border-color: var(--success);
+    background: rgba(40, 167, 69, 0.1);
+    color: var(--success);
+}
+
+.option.wrong {
+    border-color: var(--error);
+    background: rgba(220, 53, 69, 0.1);
+    color: var(--error);
+}
+
+.option.disabled {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.quiz-controls {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    padding: 12px 20px; border-radius:12px; font-weight:600; font-size:15px;
+    border:1px solid var(--border); cursor:pointer; transition: all 0.2s ease;
+}
+
+.btn-primary { background:var(--accent); color:#fff; border-color:var(--accent); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); background: var(--accent-dark); }
+.btn-secondary { background:var(--bg); color:var(--text); }
+.btn-secondary:hover { background: var(--bg-soft); border-color: #ddd; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+
+.hint-btn { background: var(--warning); color: #fff; border-color: var(--warning); }
+.hint-btn:hover { background: #e0a800; border-color: #e0a800; }
+
+.result-container { text-align: center; }
+.result-title { font-size: 2.5rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; }
+.result-score { font-size: 1.5rem; color: var(--text-muted); margin-bottom: 2rem; }
+
+.notification {
+    position: fixed; bottom: 20px; right: 20px; padding: 12px 20px;
+    font-size: 15px; font-weight: 500; border-radius: 10px; color: #fff;
+    box-shadow: var(--shadow); z-index: 2000;
+    transform: translateY(120px); opacity: 0;
+    transition: all 0.4s cubic-bezier(0.215, 0.610, 0.355, 1);
+}
+.notification.show { transform: translateY(0); opacity: 1; }
+
+/* Remove sidebars and footer */
+.sidebar, .info-panel, .footer-info { display: none; }
+@media (max-width: 768px) {
+    body { padding: 1rem; }
+    .quiz-container, .result-container { padding: 1.5rem; }
+    .options { grid-template-columns: 1fr; }
+    .question { font-size: 1.5rem; }
+    .quiz-title { font-size: 1.25rem; }
+}
+</style>
+
+  </head>
+  <body>
+    <div class="container">
+      <div class="sidebar">
+        <h3 class="sidebar-title">Tính Năng Quiz</h3>
+        <div class="sidebar-item">
+          <i class="fas fa-bolt"></i>
+          Trả lời nhanh trong 15 giây để rèn phản xạ.
+        </div>
+        <div class="sidebar-item">
+          <i class="fas fa-lightbulb"></i>
+          Dùng gợi ý để loại bỏ đáp án sai.
+        </div>
+        <div class="sidebar-item">
+          <i class="fas fa-volume-up"></i>
+          Nghe phát âm chuẩn Anh-Mỹ.
+        </div>
+        <div class="sidebar-item">
+          <i class="fas fa-star"></i>
+          Theo dõi tiến độ với thanh tiến trình.
+        </div>
+      </div>
+
+      <div class="main-content">
+        <div class="header">
+          <a href="#" class="back-button" id="backButton">
+            <i class="fas fa-arrow-left"></i>
+          </a>
+        </div>
+
+        <div class="quiz-container" id="quizContainer">
+          <div class="progress-bar">
+            <div class="progress" id="progressBar"></div>
+          </div>
+          <div class="quiz-header">
+            <h2 class="quiz-title" id="folderName">Loading...</h2>
+            <div class="quiz-info">
+              <span id="progressText">0/0</span>
+              <span class="timer"
+                ><i class="fas fa-clock"></i> <span id="timer">15</span>s</span
+              >
+            </div>
+          </div>
+          <div class="question-container">
+            <div class="question" id="questionText">
+              Loading...
+              <button class="play-audio-btn" onclick="playAudio()">
+                <i class="fas fa-volume-up"></i>
+              </button>
+            </div>
+            <div class="phonetic" id="phoneticText"></div>
+          </div>
+          <div class="options" id="optionsContainer"></div>
+          <div class="quiz-controls">
+            <button
+              class="btn btn-secondary hint-btn"
+              id="hintBtn"
+              onclick="showHint()"
+            >
+              <i class="fas fa-lightbulb"></i> Gợi ý
+            </button>
+            <button
+              class="btn btn-primary"
+              id="nextBtn"
+              onclick="nextQuestion()"
+              style="display: none"
+            >
+              Tiếp theo <i class="fas fa-arrow-right"></i>
+            </button>
+          </div>
+        </div>
+
+        <div
+          class="result-container"
+          id="resultContainer"
+          style="display: none"
+        >
+          <h2 class="result-title">Kết Quả</h2>
+          <div class="result-score" id="resultScore"></div>
+          <div class="quiz-controls">
+            <button class="btn btn-primary" onclick="restartQuiz()">
+              <i class="fas fa-redo"></i> Làm lại
+            </button>
+            <a href="study-options.html" class="btn btn-secondary">
+              <i class="fas fa-arrow-left"></i> Quay lại
+            </a>
+          </div>
+        </div>
+
+        <div class="footer-info">
+          <h3 class="footer-info-title">Hướng Dẫn Học Quiz</h3>
+          <div class="footer-info-content">
+            <p>
+              <i class="fas fa-check-circle"></i> Làm quiz nhiều lần để ghi nhớ
+              từ vựng lâu hơn.
+            </p>
+            <p>
+              <i class="fas fa-headphones"></i> Nghe phát âm và lặp lại để cải
+              thiện kỹ năng nói.
+            </p>
+            <p>
+              <i class="fas fa-trophy"></i> Đặt mục tiêu đạt 80% trở lên để
+              chinh phục từ vựng!
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="info-panel">
+        <h3 class="info-panel-title">Lợi Ích Của Quiz</h3>
+        <div class="info-panel-item">
+          <i class="fas fa-brain"></i>
+          Củng cố trí nhớ dài hạn.
+        </div>
+        <div class="info-panel-item">
+          <i class="fas fa-clock"></i>
+          Tăng tốc độ phản xạ.
+        </div>
+        <div class="info-panel-item">
+          <i class="fas fa-chart-line"></i>
+          Theo dõi tiến bộ học tập.
+        </div>
+      </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <audio
+      id="correctSound"
+      src="../main/Am_thanh_lua_chon_Dung-www_tiengdong_com.mp3"
+    ></audio>
+    <audio
+      id="wrongSound"
+      src="../main/Am_thanh_khi_chon_nham-www_tiengdong_com.mp3"
+    ></audio>
+
+  <script>
+    // *** BẮT ĐẦU TÍCH HỢP FIREBASE ***
+    const firebaseScripts = [
+        "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js",
+        "https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js",
+        "https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"
+    ];
+    let scriptLoadedCount = 0;
+    firebaseScripts.forEach(src => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = false;
+        script.onload = () => {
+            scriptLoadedCount++;
+            if (scriptLoadedCount === firebaseScripts.length) {
+                initializeApp();
+            }
+        };
+        document.head.appendChild(script);
+    });
+
+    let db, auth, currentUser;
+
+    function initializeApp() {
+        const firebaseConfig = {
+            apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
+            authDomain: "wordwhizzy.firebaseapp.com",
+            projectId: "wordwhizzy",
+            storageBucket: "wordwhizzy.appspot.com",
+            messagingSenderId: "179575783469",
+            appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4",
+            measurementId: "G-XPFQ8PCTRE"
+        };
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        db = firebase.firestore();
+        auth = firebase.auth();
+        
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                main();
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+    }
+    
+    // --- Các biến và DOM Elements ---
+    let currentFolderId = null;
+    let flashcards = [];
+    let currentQuestion = 0;
+    let score = 0;
+    let questions = [];
+    let selectedAnswer = null;
+    let timeLeft = 15;
+    let timerInterval = null;
+
+    const correctSound = document.getElementById("correctSound");
+    const wrongSound = document.getElementById("wrongSound");
+
+    // --- Logic chính của trang ---
+    function main() {
+        const urlParams = new URLSearchParams(window.location.search);
+        currentFolderId = urlParams.get("id");
+
+        if (!currentFolderId) {
+            showNotification("Không tìm thấy thư mục!", "error");
+            setTimeout(() => window.location.href = "study-options.html", 2000);
+            return;
+        }
+
+        const backButton = document.getElementById("backButton");
+        backButton.href = `study-options.html?id=${currentFolderId}`;
+
+        loadQuizData();
+    };
+
+    // THAY ĐỔI: Tải dữ liệu từ Firestore
+    async function loadQuizData() {
+        if (!currentUser || !currentFolderId) return;
+
+        // 1. Tải bộ thẻ
+        const flashcardsRef = db.collection('users').doc(currentUser.uid).collection('flashcards').doc(currentFolderId);
+        const flashcardsDoc = await flashcardsRef.get();
+
+        if (!flashcardsDoc.exists || !flashcardsDoc.data().words || flashcardsDoc.data().words.length < 4) {
+             showNotification("Cần ít nhất 4 từ vựng để tạo bài trắc nghiệm!", "warning");
+             setTimeout(() => window.location.href = `study-options.html?id=${currentFolderId}`, 2000);
+             return;
+        }
+        flashcards = flashcardsDoc.data().words;
+
+        // 2. Tải thông tin thư mục (tên)
+        const userDocRef = db.collection('users').doc(currentUser.uid);
+        const userDoc = await userDocRef.get();
+        if (userDoc.exists) {
+            const foldersData = userDoc.data().folders || {};
+            let folderName = "Unknown Folder";
+            for (let dayKey in foldersData) {
+                const folder = (foldersData[dayKey] || []).find(f => f.id === parseInt(currentFolderId));
+                if (folder) {
+                    folderName = folder.name;
+                    break;
+                }
+            }
+            document.getElementById("folderName").textContent = folderName;
+        }
+
+        generateQuestions();
+        showQuestion();
+    }
+    
+    // THAY ĐỔI: Cập nhật ngày ôn tập trên Firestore
+    async function updateLastReviewed() {
+        if (!currentUser || !currentFolderId) return;
+        const userDocRef = db.collection('users').doc(currentUser.uid);
+        try {
+            const userDoc = await userDocRef.get();
+            if (userDoc.exists) {
+                let foldersData = userDoc.data().folders;
+                let folderFound = false;
+                for (let dayKey in foldersData) {
+                    const folderIdx = (foldersData[dayKey] || []).findIndex(f => f.id === parseInt(currentFolderId));
+                    if (folderIdx !== -1) {
+                        foldersData[dayKey][folderIdx].lastReviewed = new Date().toLocaleString();
+                        folderFound = true;
+                        break;
+                    }
+                }
+                if (folderFound) {
+                    await userDocRef.update({ folders: foldersData });
+                }
+            }
+        } catch(error) {
+            console.error("Lỗi khi cập nhật ngày ôn tập:", error);
+        }
+    }
+
+    // --- Các hàm logic game (giữ nguyên) ---
+    function generateQuestions() {
+        questions = flashcards.map((card) => {
+            const correctAnswer = card.meaning;
+            const wrongAnswers = getRandomWrongAnswers(card.meaning, 3);
+            const options = [correctAnswer, ...wrongAnswers];
+            shuffleArray(options);
+            return { question: card.word, ipa: card.ipa || "", options, correct: correctAnswer };
+        });
+        shuffleArray(questions);
+    }
+
+    function getRandomWrongAnswers(correctAnswer, count) {
+        const wrongAnswers = [];
+        const availableMeanings = flashcards.map((card) => card.meaning).filter((m) => m !== correctAnswer);
+        for (let i = 0; i < count && availableMeanings.length > 0; i++) {
+            const idx = Math.floor(Math.random() * availableMeanings.length);
+            wrongAnswers.push(availableMeanings[idx]);
+            availableMeanings.splice(idx, 1);
+        }
+        while (wrongAnswers.length < count) {
+            wrongAnswers.push(`Nghĩa khác ${wrongAnswers.length + 1}`);
+        }
+        return wrongAnswers;
+    }
+
+    function shuffleArray(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
+
+    function startTimer() {
+        clearInterval(timerInterval);
+        timeLeft = 15;
+        const timerEl = document.getElementById("timer");
+        timerEl.textContent = timeLeft;
+        timerEl.style.color = "var(--primary-color)";
+        timerInterval = setInterval(() => {
+            timeLeft--;
+            timerEl.textContent = timeLeft;
+            if (timeLeft <= 5) timerEl.style.color = "var(--error)";
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                checkAnswer(null);
+            }
+        }, 1000);
+    }
+
+    function playAudio() {
+        if (!questions[currentQuestion]) return;
+        const question = questions[currentQuestion];
+        const utterance = new SpeechSynthesisUtterance(question.question);
+        utterance.lang = "en-US";
+        speechSynthesis.speak(utterance);
+    }
+
+    function showQuestion() {
+        if (currentQuestion >= questions.length) {
+            showResult();
+            return;
+        }
+        const question = questions[currentQuestion];
+        document.getElementById("questionText").innerHTML = `Từ "<strong>${question.question}</strong>" có nghĩa là gì? <button class="play-audio-btn" onclick="playAudio()"><i class="fas fa-volume-up"></i></button>`;
+        document.getElementById("phoneticText").textContent = question.ipa ? `/${question.ipa}/` : "";
+        document.getElementById("progressText").textContent = `${currentQuestion + 1}/${questions.length}`;
+        updateProgressBar();
+
+        const optionsContainer = document.getElementById("optionsContainer");
+        optionsContainer.innerHTML = "";
+        question.options.forEach((option, idx) => {
+            const div = document.createElement("div");
+            div.className = "option";
+            div.textContent = `${String.fromCharCode(65 + idx)}. ${option}`;
+            div.onclick = () => checkAnswer(option, div);
+            optionsContainer.appendChild(div);
+        });
+
+        document.getElementById("nextBtn").style.display = "none";
+        document.getElementById("hintBtn").style.display = "flex";
+        document.getElementById("hintBtn").disabled = false;
+        selectedAnswer = null;
+        startTimer();
+    }
+
+    function updateProgressBar() {
+        const percentage = ((currentQuestion + 1) / questions.length) * 100;
+        document.getElementById("progressBar").style.width = `${percentage}%`;
+    }
+
+    function checkAnswer(answer, element) {
+        clearInterval(timerInterval);
+        selectedAnswer = answer;
+        const question = questions[currentQuestion];
+        const options = document.querySelectorAll(".option");
+
+        options.forEach((opt) => {
+            opt.style.pointerEvents = "none";
+            const optionText = opt.textContent.slice(3);
+            if (optionText === question.correct) {
+                opt.classList.add("correct");
+            } else if (optionText === selectedAnswer) {
+                opt.classList.add("wrong");
+            }
+        });
+
+        if (selectedAnswer === question.correct) {
+            score++;
+            correctSound.play();
+            showNotification("Đúng rồi! 🎉", "success");
+        } else {
+            wrongSound.play();
+            showNotification(`Sai rồi! Đáp án đúng là: "${question.correct}"`, "error");
+        }
+        document.getElementById("hintBtn").style.display = "none";
+        document.getElementById("nextBtn").style.display = "flex";
+    }
+
+    function showHint() {
+        const question = questions[currentQuestion];
+        const options = document.querySelectorAll(".option");
+        const wrongOption = Array.from(options).find(opt => opt.textContent.slice(3) !== question.correct && !opt.style.opacity);
+        if (wrongOption) {
+            wrongOption.style.opacity = "0.5";
+            wrongOption.style.pointerEvents = "none";
+            showNotification("Đã loại một đáp án sai!", "warning");
+            document.getElementById("hintBtn").disabled = true;
+        }
+    }
+
+    function nextQuestion() {
+        currentQuestion++;
+        showQuestion();
+    }
+
+    function showResult() {
+        document.getElementById("quizContainer").style.display = "none";
+        document.getElementById("resultContainer").style.display = "block";
+        const percentage = Math.round((score / questions.length) * 100);
+        document.getElementById("resultScore").textContent = `Bạn đúng ${score}/${questions.length} câu (${percentage}%)`;
+        updateLastReviewed();
+    }
+
+    function restartQuiz() {
+        currentQuestion = 0;
+        score = 0;
+        selectedAnswer = null;
+        generateQuestions();
+        document.getElementById("quizContainer").style.display = "block";
+        document.getElementById("resultContainer").style.display = "none";
+        showQuestion();
+    }
+
+    function showNotification(message, type = "info") {
+        const notification = document.getElementById("notification");
+        notification.textContent = message;
+        notification.style.backgroundColor = type === "success" ? "var(--success)" : type === "error" ? "var(--error)" : type === "warning" ? "var(--warning)" : "var(--primary-color)";
+        notification.classList.add("show");
+        setTimeout(() => notification.classList.remove("show"), 2500);
+    }
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === " " && document.getElementById("nextBtn").style.display !== "none") {
+            nextQuestion();
+        } else if (e.key === "h") {
+            showHint();
+        } else if (e.key === "p") {
+            playAudio();
+        }
+    });
+</script>
+  </body>
+</html>

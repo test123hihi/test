@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Luyện Nghe Nâng Cao | Vocabulary Master</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <style>
+       /* MODIFIED: Updated to a blue color scheme for consistency */
+       
+       
+       /* Chỉ áp dụng cho thiết bị cảm ứng để không ảnh hưởng keyboard users */
+@media (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent; /* iOS, Chrome mobile */
+    -webkit-touch-callout: none;              /* tắt menu giữ chạm (iOS) nếu cần */
+  }
+}
+
+:root {
+    --primary-color: #007bff; /* A bright, professional blue */
+    --primary-hover: #0056b3; /* A darker blue for hover */
+    --background: #f0f8ff; /* Very light blue background */
+    --card-bg: #ffffff;
+    --text-primary: #343a40; /* Dark gray for text */
+    --text-secondary: #6c757d; /* Muted gray for secondary text */
+    --border-color: #e9ecef;
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+    --glow: 0 0 25px rgba(0, 123, 255, 0.3); /* Blue glow */
+    --success: #28a745;
+    --error: #dc3545;
+    --disabled: #cbd5e1;
+    --correct-glow: 0 0 15px rgba(40, 167, 69, 0.7);
+    --incorrect-glow: 0 0 15px rgba(220, 53, 69, 0.7);
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
+
+body {
+    background: var(--background);
+    color: var(--text-primary);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1.5rem;
+}
+
+.container {
+    max-width: 900px;
+    width: 100%;
+    text-align: center;
+    animation: fadeIn 0.5s ease;
+}
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+#start-screen h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+#start-screen p { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 1.5rem; }
+.settings-container { display: flex; justify-content: center; margin-bottom: 2.5rem; }
+.voice-selection { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+.voice-selection label { font-weight: 500; color: var(--text-primary); }
+#voice-select {
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    min-width: 250px;
+    background-color: var(--card-bg);
+}
+
+.game-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+}
+.timer-container { font-size: 1.5rem; font-weight: 600; color: var(--primary-color); }
+.timer-container i { margin-right: 0.5rem; }
+.speaker-btn { background: none; border: none; font-size: 1.8rem; color: var(--text-secondary); cursor: pointer; transition: color 0.2s, transform 0.2s; }
+.speaker-btn:hover { color: var(--primary-color); transform: scale(1.1); }
+.speaker-btn.speaking { color: var(--primary-color); animation: pulse 1s infinite; }
+
+.progress-container {
+    width: 100%;
+    background-color: var(--border-color);
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+#progress-bar {
+    height: 15px;
+    width: 0%;
+    background-color: var(--success);
+    border-radius: 10px;
+    transition: width 0.3s ease-in-out;
+}
+#progress-text {
+    font-weight: 600;
+    margin-bottom: 2rem;
+    color: var(--text-secondary);
+}
+
+.word-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 1rem;
+}
+.word-card {
+    background: var(--card-bg);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 2px solid var(--border-color);
+    box-shadow: var(--shadow);
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    user-select: none;
+}
+.word-card:hover { transform: translateY(-5px); border-color: var(--primary-color); box-shadow: var(--glow); }
+.word-card.incorrect { animation: shake 0.4s; border-color: var(--error); box-shadow: var(--incorrect-glow); }
+.word-card.correct {
+    background-color: var(--success);
+    border-color: var(--success);
+    color: white;
+    cursor: not-allowed;
+    opacity: 0.7;
+    transform: scale(0.95);
+}
+
+#end-screen h2 { font-size: 2.2rem; margin-bottom: 0.5rem; }
+#end-screen .final-stats { font-size: 1.5rem; color: var(--primary-color); font-weight: 700; margin-bottom: 2.5rem; }
+
+#history-modal {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.5); backdrop-filter: blur(8px);
+    display: none; align-items: center; justify-content: center; z-index: 1000;
+}
+.history-content { background: var(--card-bg); padding: 2rem; border-radius: 18px; width: 90%; max-width: 500px; max-height: 80vh; overflow-y: auto; }
+.history-content h2 { margin-bottom: 1.5rem; }
+#history-list { list-style: none; }
+#history-list li { display: flex; justify-content: space-between; padding: 0.8rem 0; border-bottom: 1px solid var(--border-color); font-size: 1rem; }
+#history-list li:last-child { border-bottom: none; }
+.history-time { font-weight: 600; color: var(--primary-color); }
+.history-words { color: var(--text-secondary); }
+
+.btn { padding: 0.9rem 2rem; border: none; border-radius: 35px; font-weight: 600; font-size: 1.05rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.7rem; transition: all 0.3s ease; box-shadow: var(--shadow); text-decoration: none; color: white; }
+.btn-primary { background-color: var(--primary-color); }
+.btn-primary:hover { background-color: var(--primary-hover); box-shadow: var(--glow); transform: translateY(-3px); }
+.btn-secondary { background-color: var(--card-bg); color: var(--text-primary); border: 1px solid var(--border-color); }
+.btn-secondary:hover { border-color: var(--primary-color); color: var(--primary-color); transform: translateY(-2px); }
+.actions { margin-top: 2rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; }
+.loading-indicator, .error-message { font-size: 1.2rem; color: var(--text-secondary); padding: 2rem; }
+@media (max-width: 768px) {
+  #start-screen h1 { font-size: 1.8rem; }
+  .game-header { flex-direction: column; gap: 1rem; }
+  .word-grid { grid-template-columns: repeat(2, 1fr); }
+}
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div id="start-screen" class="screen active">
+            <h1>Luyện Nghe & Phản Xạ</h1>
+            <p>Nghe và chọn đúng tất cả các từ trong thời gian nhanh nhất.</p>
+            <div class="settings-container">
+                <div class="voice-selection">
+                    <label for="voice-select">Chọn giọng đọc (Bấm để nghe thử)</label>
+                    <select id="voice-select"><option>Đang tải giọng đọc...</option></select>
+                </div>
+            </div>
+            <div class="actions">
+                <button id="start-btn" class="btn btn-primary"><i class="fas fa-play"></i> Bắt đầu</button>
+            </div>
+            <div class="actions">
+                <button id="show-history-btn-start" class="btn btn-secondary"><i class="fas fa-history"></i> Lịch sử</button>
+                <a href="vocabulary.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại</a>
+            </div>
+        </div>
+
+        <div id="loading-screen" class="screen"><div class="loading-indicator"><i class="fas fa-spinner fa-spin"></i> Đang tải bộ từ...</div></div>
+        <div id="error-screen" class="screen"><div class="error-message"><p id="error-text"></p><div class="actions"><a href="vocabulary.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại</a></div></div></div>
+
+        <div id="game-screen" class="screen">
+            <header class="game-header">
+                <div class="timer-container"><i class="fas fa-stopwatch"></i><span id="timer">0.00</span></div>
+                <button id="speaker-btn" class="speaker-btn" title="Nghe lại"><i class="fas fa-volume-up"></i></button>
+            </header>
+            <div class="progress-container"><div id="progress-bar"></div></div>
+            <div id="progress-text">0/0</div>
+            <main id="word-grid" class="word-grid"></main>
+        </div>
+
+        <div id="end-screen" class="screen">
+            <h2>Hoàn thành xuất sắc!</h2>
+            <p class="final-stats" id="final-stats"></p>
+            <div class="actions">
+                <button id="play-again-btn" class="btn btn-primary"><i class="fas fa-redo"></i> Chơi lại</button>
+                <button id="show-history-btn-end" class="btn btn-secondary"><i class="fas fa-history"></i> Lịch sử</button>
+                 <a href="vocabulary.html" class="btn btn-secondary"><i class="fas fa-list-ul"></i> Chọn bộ thẻ khác</a>
+            </div>
+        </div>
+    </div>
+    
+    <div id="history-modal">
+        <div class="history-content">
+            <h2>Lịch sử chơi</h2>
+            <ul id="history-list"></ul>
+            <div class="actions">
+                <button id="close-history-btn" class="btn btn-secondary">Đóng</button>
+                <button id="clear-history-btn" class="btn btn-secondary" style="background-color: var(--error); color: white;">Xóa Lịch sử</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+        const screens = {
+            start: document.getElementById('start-screen'),
+            game: document.getElementById('game-screen'),
+            loading: document.getElementById('loading-screen'),
+            error: document.getElementById('error-screen'),
+            end: document.getElementById('end-screen')
+        };
+        const voiceSelect = document.getElementById('voice-select');
+        const startBtn = document.getElementById('start-btn');
+        const speakerBtn = document.getElementById('speaker-btn');
+        const wordGrid = document.getElementById('word-grid');
+        const timerEl = document.getElementById('timer');
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+        const finalStatsEl = document.getElementById('final-stats');
+        const errorTextEl = document.getElementById('error-text');
+        const playAgainBtn = document.getElementById('play-again-btn');
+        const historyModal = document.getElementById('history-modal');
+        const historyListEl = document.getElementById('history-list');
+        const showHistoryBtnStart = document.getElementById('show-history-btn-start');
+        const showHistoryBtnEnd = document.getElementById('show-history-btn-end');
+        const closeHistoryBtn = document.getElementById('close-history-btn');
+        const clearHistoryBtn = document.getElementById('clear-history-btn');
+
+        let db, auth, currentUser, folderId;
+        let allWords = [], wordsToGuess = [], unguessedWords = [], currentWord = null;
+        let timerInterval = null, startTime = 0;
+        let voices = [];
+        let selectedVoice = null;
+
+        function initializeFirebase() {
+            const firebaseConfig = {
+                apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
+                authDomain: "wordwhizzy.firebaseapp.com",
+                projectId: "wordwhizzy",
+                storageBucket: "wordwhizzy.appspot.com",
+                messagingSenderId: "179575783469",
+                appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4",
+                measurementId: "G-XPFQ8PCTRE"
+            };
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.firestore();
+            auth = firebase.auth();
+
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUser = user;
+                    const urlParams = new URLSearchParams(window.location.search);
+                    folderId = urlParams.get("id");
+                    if (!folderId) {
+                        showError("Không tìm thấy ID bộ thẻ. Vui lòng quay lại và chọn một bộ thẻ.");
+                    }
+                } else {
+                    window.location.href = 'login.html';
+                }
+            });
+        }
+
+        function showScreen(screen) {
+            Object.values(screens).forEach(s => s.classList.remove('active'));
+            screen.classList.add('active');
+        }
+        
+        function showError(message) {
+            errorTextEl.textContent = message;
+            showScreen(screens.error);
+        }
+
+        function populateVoiceList() {
+            voices = speechSynthesis.getVoices().filter(v => v.lang.startsWith('en'));
+            voiceSelect.innerHTML = '';
+            if (voices.length === 0) {
+                voiceSelect.innerHTML = '<option>Không tìm thấy giọng đọc</option>';
+                return;
+            }
+            voices.forEach(voice => {
+                const option = document.createElement('option');
+                option.textContent = `${voice.name} (${voice.lang})`;
+                option.setAttribute('data-name', voice.name);
+                voiceSelect.appendChild(option);
+            });
+        }
+        
+        function handleVoiceSelectionChange() {
+            const selectedVoiceName = voiceSelect.selectedOptions[0].getAttribute('data-name');
+            const voice = voices.find(v => v.name === selectedVoiceName);
+            if (voice) {
+                speakSample(voice);
+            }
+        }
+
+        function speakSample(voice) {
+            if (!speechSynthesis) return;
+            const sampleText = "Hello, this is a test.";
+            const utterance = new SpeechSynthesisUtterance(sampleText);
+            utterance.voice = voice;
+            utterance.rate = 0.9;
+            speechSynthesis.cancel(); // Dừng bất kỳ âm thanh nào đang phát
+            speechSynthesis.speak(utterance);
+        }
+
+        async function fetchVocabulary() {
+            if (!currentUser || !folderId) {
+                 showError("Chưa xác thực người dùng hoặc không có ID bộ thẻ.");
+                 return false;
+            }
+            showScreen(screens.loading);
+            try {
+                const docRef = db.collection('users').doc(currentUser.uid).collection('flashcards').doc(folderId);
+                const doc = await docRef.get();
+                if (doc.exists) {
+                    const data = doc.data().words;
+                    if (data && data.length > 0) {
+                        allWords = data;
+                        return true;
+                    }
+                    showError("Bộ thẻ này không có từ vựng nào. Vui lòng thêm từ.");
+                    return false;
+                }
+                showError("Không tìm thấy bộ thẻ này. Có thể nó chưa được tạo.");
+                return false;
+            } catch (error) {
+                console.error("Lỗi tải từ vựng:", error);
+                showError("Đã xảy ra lỗi khi tải dữ liệu. Vui lòng thử lại.");
+                return false;
+            }
+        }
+
+        async function startGame() {
+            const success = await fetchVocabulary();
+            if (!success) return;
+            
+            selectedVoice = voices.find(v => v.name === voiceSelect.selectedOptions[0].getAttribute('data-name'));
+            
+            wordsToGuess = shuffleArray([...allWords]).slice(0, 20);
+            unguessedWords = [...wordsToGuess];
+            wordGrid.innerHTML = '';
+            
+            wordsToGuess.forEach(word => {
+                const card = document.createElement('div');
+                card.className = 'word-card';
+                card.textContent = word.word;
+                card.dataset.wordId = word.id;
+                card.addEventListener('click', handleWordSelection);
+                wordGrid.appendChild(card);
+            });
+
+            showScreen(screens.game);
+            startTimer();
+            askNextQuestion();
+        }
+
+        function askNextQuestion() {
+            updateProgress();
+            if (unguessedWords.length === 0) {
+                endGame();
+                return;
+            }
+            // Chọn một từ ngẫu nhiên từ những từ chưa đoán đúng
+            currentWord = unguessedWords[Math.floor(Math.random() * unguessedWords.length)];
+            speakWord(currentWord.word);
+        }
+
+        function handleWordSelection(event) {
+            const selectedCard = event.currentTarget;
+            if (selectedCard.classList.contains('correct')) return;
+
+            const selectedWordId = selectedCard.dataset.wordId;
+            
+            wordGrid.querySelectorAll('.incorrect').forEach(c => c.classList.remove('incorrect'));
+
+            if (selectedWordId === currentWord.id) {
+                selectedCard.classList.add('correct');
+                // Xóa từ đã đoán đúng khỏi danh sách
+                unguessedWords = unguessedWords.filter(word => word.id !== currentWord.id);
+                setTimeout(askNextQuestion, 300);
+            } else {
+                selectedCard.classList.add('incorrect');
+            }
+        }
+        
+        function endGame() {
+            stopTimer();
+            const elapsedTime = ((Date.now() - startTime) / 1000).toFixed(2);
+            finalStatsEl.textContent = `Thời gian: ${elapsedTime}s | Số từ: ${wordsToGuess.length}`;
+            saveHistoryToFirestore(elapsedTime, wordsToGuess.length);
+            showScreen(screens.end);
+        }
+
+        function updateProgress() {
+            const total = wordsToGuess.length;
+            const guessed = total - unguessedWords.length;
+            const percentage = total > 0 ? (guessed / total) * 100 : 0;
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${guessed} / ${total}`;
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startTimer() {
+            startTime = Date.now();
+            timerInterval = setInterval(() => {
+                timerEl.textContent = ((Date.now() - startTime) / 1000).toFixed(2);
+            }, 100);
+        }
+
+        function stopTimer() {
+            clearInterval(timerInterval);
+        }
+
+        function speakWord(word) {
+            if (!word || !speechSynthesis) return;
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(word);
+            if (selectedVoice) {
+                utterance.voice = selectedVoice;
+            } else {
+                utterance.lang = 'en-US';
+            }
+            utterance.rate = 0.9;
+            utterance.onstart = () => speakerBtn.classList.add('speaking');
+            utterance.onend = () => speakerBtn.classList.remove('speaking');
+            speechSynthesis.speak(utterance);
+        }
+
+        async function saveHistoryToFirestore(time, wordCount) {
+            if (!currentUser || !folderId) return;
+            const historyRef = db.collection('users').doc(currentUser.uid).collection('listeningHistory').doc(folderId);
+            try {
+                const doc = await historyRef.get();
+                const history = doc.exists ? doc.data().records : [];
+                const newRecord = {
+                    time: parseFloat(time),
+                    wordCount: wordCount,
+                    date: new Date().toISOString()
+                };
+                history.unshift(newRecord);
+                await historyRef.set({ records: history.slice(0, 20) });
+            } catch (error) {
+                console.error("Lỗi lưu lịch sử:", error);
+            }
+        }
+
+        async function displayHistory() {
+            if (!currentUser || !folderId) {
+                historyListEl.innerHTML = '<li>Không thể tải lịch sử.</li>';
+                historyModal.style.display = 'flex';
+                return;
+            }
+            const historyRef = db.collection('users').doc(currentUser.uid).collection('listeningHistory').doc(folderId);
+            try {
+                const doc = await historyRef.get();
+                const history = doc.exists ? doc.data().records : [];
+                
+                historyListEl.innerHTML = '';
+                if (history.length === 0) {
+                    historyListEl.innerHTML = '<li>Chưa có lịch sử chơi.</li>';
+                    clearHistoryBtn.style.display = 'none';
+                } else {
+                    clearHistoryBtn.style.display = 'inline-flex';
+                    history.forEach(record => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `
+                            <span>${new Date(record.date).toLocaleString('vi-VN')}</span> 
+                            <div>
+                                <span class="history-words">${record.wordCount} từ</span>
+                                <span class="history-time">${record.time}s</span>
+                            </div>`;
+                        historyListEl.appendChild(li);
+                    });
+                }
+                historyModal.style.display = 'flex';
+            } catch (error) {
+                 console.error("Lỗi tải lịch sử:", error);
+                 historyListEl.innerHTML = '<li>Đã xảy ra lỗi khi tải lịch sử.</li>';
+                 historyModal.style.display = 'flex';
+            }
+        }
+        
+        async function clearHistory() {
+            if (!currentUser || !folderId) return;
+            if (confirm("Bạn có chắc chắn muốn xóa toàn bộ lịch sử chơi cho bộ thẻ này?")) {
+                const historyRef = db.collection('users').doc(currentUser.uid).collection('listeningHistory').doc(folderId);
+                try {
+                    await historyRef.delete();
+                    displayHistory();
+                } catch(error) {
+                    console.error("Lỗi xóa lịch sử:", error);
+                    alert("Không thể xóa lịch sử.");
+                }
+            }
+        }
+
+        // --- Gán sự kiện ---
+        speechSynthesis.onvoiceschanged = populateVoiceList;
+        voiceSelect.addEventListener('change', handleVoiceSelectionChange);
+        startBtn.addEventListener('click', startGame);
+        playAgainBtn.addEventListener('click', startGame);
+        speakerBtn.addEventListener('click', () => { if (currentWord) speakWord(currentWord.word); });
+        showHistoryBtnStart.addEventListener('click', displayHistory);
+        showHistoryBtnEnd.addEventListener('click', displayHistory);
+        closeHistoryBtn.addEventListener('click', () => historyModal.style.display = 'none');
+        clearHistoryBtn.addEventListener('click', clearHistory);
+
+        initializeFirebase();
+        populateVoiceList();
+
+    </script>
+</body>
+</html>

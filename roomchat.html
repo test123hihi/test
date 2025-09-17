@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordWhizzy Chat Room</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      /* --- BIẾN MÀU ĐÃ ĐƯỢC CẬP NHẬT SANG TÔNG XANH DƯƠNG --- */
+      
+      /* Chỉ áp dụng cho thiết bị cảm ứng để không ảnh hưởng keyboard users */
+@media (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent; /* iOS, Chrome mobile */
+    -webkit-touch-callout: none;              /* tắt menu giữ chạm (iOS) nếu cần */
+  }
+}
+
+      :root{
+        --bg: #ffffff;
+        --bg-soft: #f9f9f9;
+        --text: #1f2937; /* Dark Gray-Blue */
+        --text-muted: #6B7280; /* Cool Gray */
+        --border: #e8e8e8;
+        --border-dashed: #dcdcdc;
+        --radius: 14px;
+        --shadow: 0 8px 24px rgba(59, 130, 246, 0.1); /* Blueish Shadow */
+        --glass: rgba(255,255,255,0.8);
+        --accent: #3B82F6; /* Primary Blue */
+        --gap: 24px;
+        font-synthesis: none;
+
+        /* Custom variables for chat */
+        --background-light: #F9F9F9;
+        --chat-primary: var(--accent); /* Chat bubble màu xanh */
+        --chat-border: #FFFFFF;
+      }
+      
+      * {
+          box-sizing: border-box;
+      }
+
+      html, body {
+        height: 100%;
+        overflow: hidden;
+        margin:0;
+        font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial;
+        -webkit-font-smoothing:antialiased;
+        -moz-osx-font-smoothing:grayscale;
+      }
+
+      body {
+        background-color: var(--background-light);
+        color: var(--text);
+        padding-top: 72px; /* Adjusted for new header height */
+        overflow-x: hidden;
+      }
+      main { height: calc(100% - 72px); width: 100%; display: flex; position: relative;
+      }
+
+      /* ================================================= */
+      /* == NEW HEADER STYLES FROM INDEX.HTML           == */
+      /* ================================================= */
+      header.app-header{
+        position:fixed;left:0;right:0;top:0;height:72px;
+        display:flex;align-items:center;justify-content:space-between;
+        padding:0 24px;
+        background:var(--glass);
+        border-bottom:1px solid var(--border);
+        z-index:1200;
+        backdrop-filter: blur(8px);
+      }
+      .brand{display:flex;align-items:center;gap:12px;}
+      
+      /* === CSS CHO LOGO MỚI TỪ TRANGCHU.HTML === */
+      .logo {
+        width: auto; /* Tự động điều chỉnh chiều rộng */
+        max-height: 48px; /* Giữ chiều cao tối đa của logo */
+        border-radius: 8px; /* Giữ bo góc để hợp với thiết kế chung */
+        object-fit: contain; /* Đảm bảo toàn bộ logo được hiển thị, không bị cắt xén */
+      }
+
+      .site-title{font-weight:600;font-size:18px;}
+      .main-nav{display:flex;align-items:center;gap:4px;margin-left:16px}
+      .main-nav a{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;color:var(--text-muted);font-weight:500;font-size:14px;
+      transition: all 0.2s ease; text-decoration: none;}
+      .main-nav a:hover, .main-nav a.active{background:var(--bg-soft);color:var(--text)}
+      .main-nav a.active i {color: var(--accent);} /* Make active icon blue */
+
+
+      .header-right{display:flex;align-items:center;gap:12px}
+      .icon-btn{width:44px;height:44px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-muted);border:1px solid transparent;cursor:pointer;
+      transition: all 0.2s ease; position: relative;}
+      .icon-btn:hover{background:var(--bg-soft);color:var(--text);border-color:var(--border)}
+      a.icon-btn{color:var(--text-muted);
+      text-decoration: none;}
+      a.icon-btn:hover{color:var(--accent);} /* Make icon blue on hover */
+      
+      .user-display{display:flex;align-items:center;gap:10px;cursor:pointer}
+      .user-display img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--border)}
+      .tiny{font-size:12px;color:var(--text-muted)}
+      
+      .mobile-menu-dropdown {
+        display: none;
+        position: absolute;
+        right: 0;
+        top: 60px;
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 8px;
+        box-shadow: var(--shadow);
+        z-index: 1300;
+        width: 200px;
+      }
+      .mobile-menu-dropdown a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        color: var(--text-muted);
+        font-size: 14px;
+        font-weight: 500;
+        text-decoration: none;
+      }
+      .mobile-menu-dropdown a:hover {
+        background-color: var(--bg-soft);
+        color: var(--text);
+      }
+      .mobile-menu-btn { display: none;
+      } /* Hide by default */
+
+      @media (max-width: 820px){
+        .main-nav a[href="./chatai.html"],
+        .main-nav a[href="./roomchat.html"],
+        .main-nav a[href="#pricing"] {
+          display: none;
+        }
+        .main-nav span { display: none;
+        }
+        .main-nav a { padding: 8px; gap: 0;
+        }
+        .site-title { display: none;
+        }
+        .main-nav { margin-left: 8px; gap: 8px;
+        }
+        .header-right { gap: 8px;
+        }
+        header.app-header{ padding: 0 16px;
+        }
+        .mobile-menu-btn { display: inline-flex;
+        }
+      }
+      /* --- END NEW HEADER STYLES --- */
+
+
+      /* --- Custom Scrollbar --- */
+      ::-webkit-scrollbar { width: 8px;
+      }
+      ::-webkit-scrollbar-track { background: var(--background-light); }
+      ::-webkit-scrollbar-thumb { background: var(--border-color);
+      border-radius: 10px; }
+
+      /* --- Login Screen --- */
+      #login-screen { background: var(--background-light);
+      }
+      .login-card {
+        background: var(--bg);
+        border: 1px solid var(--border-color);
+        padding: 3rem;
+        border-radius: var(--border-radius);
+      }
+      #login-button {
+          background-color: var(--text);
+          color: white;
+          padding: 0.75rem 1.5rem;
+          border-radius: var(--border-radius);
+          display: flex;
+          align-items: center;
+          margin: 0 auto;
+          font-size: 1rem;
+      }
+      
+      /* --- Chat Sidebar --- */
+      .chat-sidebar {
+        width: 300px;
+        border-right: 1px solid var(--border-color);
+        background-color: var(--bg);
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .chat-sidebar-header {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .chat-sidebar-header h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+      }
+      .sidebar-button {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.75rem;
+        font-weight: 500;
+        border-radius: var(--border-radius);
+        transition: background-color 0.2s ease;
+        cursor: pointer;
+      }
+      .sidebar-button.create {
+        background-color: var(--background-light);
+        border: 1px solid var(--border-color);
+        color: var(--text);
+      }
+      .sidebar-button.create:hover {
+        background-color: var(--border-color);
+      }
+      .sidebar-button.join {
+        background-color: var(--accent);
+        color: white;
+      }
+      .sidebar-button.join:hover {
+        opacity: 0.9;
+      }
+      .sidebar-input {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--border-color);
+        background-color: #f8f8f8;
+        border-radius: var(--border-radius);
+      }
+      .group-item {
+        padding: 1rem 1.5rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        position: relative; /* For unread badge positioning */
+        transition: background-color 0.2s ease, transform 0.2s ease;
+      }
+      .group-item:hover, .group-item.active {
+        background-color: var(--background-light);
+        transform: translateX(3px);
+      }
+      .group-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        flex-shrink: 0;
+        background-color: var(--bg-soft);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: var(--accent);
+        font-size: 1.2rem;
+      }
+      .group-item-content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        min-width: 0;
+      }
+      .group-item-content span {
+        font-size: 0.9rem;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .group-item-content .group-name {
+        font-weight: 600;
+      }
+      .group-item-content .group-code {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .copy-code-btn {
+        background: none;
+        border: none; cursor: pointer; color: var(--text-muted);
+        padding: 0.2rem; border-radius: 4px; transition: color 0.2s, background-color 0.2s;
+      }
+      .copy-code-btn:hover { background-color: var(--border-color); color: var(--text-primary);
+      }
+      
+      .unread-badge {
+        position: absolute;
+        right: 1.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: #ef4444; /* Red color */
+        color: white;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 0.15rem 0.45rem;
+        border-radius: 9999px;
+        line-height: 1;
+      }
+
+      /* --- Chat Screen --- */
+      #chat-screen {
+        background-color: var(--background-light);
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        overflow: hidden; 
+      }
+      .chat-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid var(--border-color);
+        background-color: var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        flex-shrink: 0;
+      }
+      .chat-header .group-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        flex-grow: 1;
+      }
+      .chat-header .group-info .group-avatar {
+        width: 44px;
+        height: 44px;
+      }
+      .chat-header .group-details {
+        display: flex;
+        flex-direction: column;
+      }
+      .chat-header h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        line-height: 1.2;
+      }
+      .chat-header span {
+        font-size: 0.875rem;
+        color: var(--text-muted);
+      }
+      #chat-messages {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      
+      /* --- Message Bubbles --- */
+      .message-row {
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        animation: message-appear 0.4s ease-out forwards;
+        transition: opacity 0.4s ease;
+      }
+      .message-row.current-user {
+        flex-direction: row-reverse;
+      }
+      .message-row.recalled {
+        opacity: 0.6;
+      }
+      .message-row .avatar {
+        flex-shrink: 0;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        transition: opacity 0.4s ease;
+      }
+      .message-content-wrapper {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        max-width: 75%;
+        transition: transform 0.2s ease-out;
+        position: relative;
+      }
+      .message-row:hover .message-content-wrapper {
+        transform: translateY(-2px);
+      }
+      .message-row:not(.current-user) .message-content-wrapper {
+        align-items: flex-start;
+      }
+      .message-row.current-user .message-content-wrapper {
+        align-items: flex-end;
+      }
+      .message-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.875rem;
+        color: var(--text-muted);
+      }
+      .message-header .sender-name {
+        font-weight: 600;
+        color: var(--text);
+      }
+      .edited-indicator {
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        opacity: 0.8;
+        font-style: italic;
+        margin-left: 0.5rem;
+        animation: fade-in-indicator 0.5s ease;
+      }
+      @keyframes fade-in-indicator {
+          from { opacity: 0;
+          }
+          to { opacity: 0.8;
+          }
+      }
+      .message-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        max-width: 100%;
+      }
+      .message-bubble {
+        padding: 0.75rem 1.25rem;
+        border-radius: var(--radius);
+        line-height: 1.5;
+        word-wrap: break-word;
+        font-size: 0.95rem;
+        transition: background-color 0.3s ease, border-color 0.3s ease;
+      }
+      .message-row:not(.current-user) .message-bubble {
+        background-color: var(--bg);
+        border: 1px solid var(--border);
+      }
+      .message-row.current-user .message-bubble {
+        background-color: var(--chat-primary);
+        color: #fff; /* Chữ trắng trên nền xanh */
+      }
+      
+      .message-options {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        position: absolute;
+        top: 50%;
+        right: 100%; /* Position to the left of the content wrapper */
+        margin-right: 8px; /* Space between buttons and bubble */
+        transform: translateY(-50%) scale(0.8);
+        opacity: 0;
+        transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+        pointer-events: none;
+      }
+      .message-row.current-user:hover .message-options {
+        transform: translateY(-50%) scale(1);
+        opacity: 1;
+        pointer-events: auto;
+      }
+      .message-options button {
+        background: #fff;
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--text-muted);
+        transition: transform 0.2s ease;
+      }
+      .message-options button:hover {
+        background-color: var(--bg-soft);
+        transform: scale(1.1);
+      }
+
+      .recalled-message-bubble {
+        padding: 0.75rem 1.25rem;
+        border-radius: var(--radius);
+        font-size: 0.9rem;
+        font-style: italic;
+        color: var(--text-muted);
+        background-color: var(--bg-soft);
+        border: 1px dashed var(--border-dashed);
+        animation: message-appear 0.4s ease-out forwards;
+      }
+      .recalled-message-bubble i {
+        margin-right: 0.5rem;
+      }
+
+      /* System Message */
+      .system-message {
+        width: 100%;
+        text-align: center;
+        margin: 0.5rem 0;
+        animation: system-message-appear 0.5s ease-out forwards;
+      }
+      .system-message p {
+        color: var(--text-muted);
+        font-style: italic;
+        font-size: 0.85rem;
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background-color: var(--bg-soft);
+        border-radius: 1rem;
+      }
+      
+      /* Shared Folder Message */
+      .shared-folder-bubble {
+        background-color: var(--bg);
+        border: 1px solid var(--border);
+        padding: 1.25rem;
+        border-radius: var(--radius);
+        max-width: 400px;
+      }
+      .shared-folder-bubble h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.75rem;
+      }
+      .shared-folder-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem;
+      }
+      .shared-folder-list li { display: flex; align-items: center; gap: 0.75rem;
+      }
+      .shared-folder-list i { color: var(--text-muted);
+      }
+      .btn-import { background-color: var(--accent); color: white; padding: 0.75rem 1.5rem; border-radius: var(--radius); font-weight: 600;
+      margin-top: 1rem; display: inline-flex; align-items: center; gap: 0.5rem; transition: background-color 0.2s ease; cursor: pointer; border: none;
+      }
+      .btn-import:hover:not(:disabled) { opacity: 0.9; }
+      .btn-import:disabled { background-color: #94a3b8;
+      cursor: not-allowed; }
+
+      /* Message Input Form */
+      .message-form-container { background: var(--bg);
+      border-top: 1px solid var(--border); padding: 1.5rem; flex-shrink: 0; }
+      #message-form { max-width: 900px; width: 100%;
+      margin: 0 auto; display: flex; align-items: center; gap: 1rem; }
+      #message-input { flex-grow: 1;
+      min-width: 0; padding: 0.75rem 1.25rem; border: 1px solid var(--border); background-color: var(--bg-soft); border-radius: var(--radius); font-size: 1rem;
+      transition: border-color 0.2s ease, box-shadow 0.3s ease; }
+      #message-input::placeholder { color: var(--text-muted);
+      }
+      #message-input:focus { outline: none; border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
+      .control-button { background: none;
+      border: none; cursor: pointer; color: var(--text); width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 1.25rem;
+      transition: background-color 0.2s ease, transform 0.2s ease; flex-shrink: 0; }
+      .control-button:hover { background-color: var(--bg-soft);
+      }
+      .control-button:active { transform: scale(0.9); }
+      #send-button { background-color: var(--accent);
+      color: white; }
+      #send-button:hover { opacity: 0.9;
+      }
+      #back-to-sidebar-btn { display: none;
+      }
+      
+      @keyframes message-appear { from { opacity: 0;
+      transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes system-message-appear { from { opacity: 0;
+      } to { opacity: 1; } }
+
+      /* --- Modals --- */
+      .modal-backdrop { position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.3); backdrop-filter: blur(5px); z-index: 1500; display: flex;
+      align-items: center; justify-content: center; padding: 1rem; opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+      }
+      .modal-backdrop.visible { opacity: 1; pointer-events: auto;
+      }
+      .modal-content { background: var(--bg); border-radius: var(--radius); padding: 2rem; width: 100%; max-width: 500px; max-height: 90vh;
+      display: flex; flex-direction: column; border: 1px solid var(--border); box-shadow: var(--shadow); transform: scale(0.95); transition: transform 0.3s ease;
+      }
+      .modal-backdrop.visible .modal-content { transform: scale(1);
+      }
+      .modal-content h2 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem;
+      }
+      .modal-content p { color: var(--text-muted); margin-bottom: 1rem;
+      }
+      .folder-list-container { flex-grow: 1; overflow-y: auto; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 0.25rem;
+      padding: 0.5rem; margin: 1rem 0; }
+      .folder-checkbox { display: flex; align-items: center; gap: 0.75rem;
+      padding: 0.75rem; border-radius: var(--radius); cursor: pointer; transition: background-color 0.2s ease; }
+      .folder-checkbox:hover { background-color: var(--border-color);
+      }
+      .folder-checkbox input { width: 18px; height: 18px; accent-color: var(--accent);
+      }
+      .modal-buttons { display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;
+      }
+      .modal-button { padding: 0.75rem 1.5rem; border-radius: var(--radius); font-weight: 600; transition: background-color 0.2s ease;
+      border: none; cursor: pointer; }
+      .modal-button-cancel { background-color: var(--border); color: var(--text);
+      }
+      .modal-button-cancel:hover { background-color: var(--text-muted); color: white;
+      }
+      .modal-button-share { background-color: var(--accent); color: white;
+      }
+      .modal-button-share:hover { opacity: 0.9; }
+      .modal-button-danger { background-color: #dc3545;
+      color: white; }
+      .modal-button-danger:hover { background-color: #c82333;
+      }
+
+      /* --- Group Settings Modal --- */
+      #group-settings-modal .modal-content { gap: 1.5rem; }
+      .settings-input-group { width: 100%; }
+      .settings-input-group label { font-weight: 500; font-size: 0.9rem; margin-bottom: 0.5rem; display: block; }
+      #member-list-container { max-height: 200px; overflow-y: auto; background: var(--bg-soft); border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
+      .member-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem; }
+      .member-item img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+      .member-info { flex-grow: 1; }
+      .admin-badge { background-color: #e0e7ff; color: #4338ca; font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 6px; margin-left: 8px; }
+      .kick-member-btn { background: none; border: 1px solid #fca5a5; color: #ef4444; border-radius: 6px; padding: 4px 8px; font-size: 0.8rem; cursor: pointer; transition: all 0.2s; }
+      .kick-member-btn:hover { background: #fee2e2; }
+
+      /* Popup Styles */
+       .popup { display: none;
+       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.9); background: var(--bg); padding: 2.5rem; border-radius: 25px; box-shadow: var(--shadow); z-index: 2000;
+       max-width: 500px; width: 90%; text-align: center; animation: popupShow 0.4s ease forwards; border: 1px solid var(--border-color); color: var(--text-primary);
+       }
+      .popup.active { display: block;
+      }
+      @keyframes popupShow { to { transform: translate(-50%, -50%) scale(1); opacity: 1;
+      } }
+      .popup h4 { font-size: 2rem; font-weight: 700; color: var(--text); margin-bottom: 0.8rem;
+      }
+      .popup .close-btn { background: var(--text-muted); color: #fff; padding: 0.8rem 2.5rem; border: none; border-radius: 15px;
+      cursor: pointer; font-size: 1rem; font-weight: 600; transition: background 0.3s ease;
+      }
+      .popup .close-btn:hover { background: var(--text);
+      }
+
+      /* --- Responsive --- */
+      @media (max-width: 768px) {
+        main#app-container { overflow: hidden;
+        }
+        .chat-sidebar { width: 100%; height: 100%; position: absolute; left: 0; top: 0;
+        transition: transform 0.3s ease-in-out; transform: translateX(0); z-index: 20; }
+        #chat-screen { width: 100%;
+        height: 100%; position: absolute; left: 0; top: 0; transition: transform 0.3s ease-in-out; transform: translateX(100%); z-index: 30;
+        }
+        body.chat-active .chat-sidebar { transform: translateX(-100%);
+        }
+        body.chat-active #chat-screen { transform: translateX(0); position: fixed; top: 72px; bottom: 0;
+        height: auto; } /* Adjusted for new header height */
+        #back-to-sidebar-btn { display: flex;
+        }
+        .chat-header .group-info { gap: 0.5rem; }
+        .chat-header .group-info .group-avatar { width: 36px; height: 36px; }
+        .chat-header h3 { font-size: 1.1rem;
+        }
+        .chat-header span#member-count { font-size: 0.75rem;
+        }
+        .message-form-container { padding: 0.75rem;
+        }
+        .group-item { padding: 0.8rem 1rem;
+        }
+        .group-item-content span { font-size: 0.85rem;
+        }
+        .group-item-content .group-code { font-size: 0.7rem;
+        }
+        #chat-messages { padding: 1rem; gap: 1rem;
+        }
+        .message-row { gap: 0.5rem;
+        }
+        .message-row .avatar { width: 32px; height: 32px;
+        }
+        .message-bubble { padding: 0.6rem 1rem; font-size: 0.9rem;
+        }
+        .message-header { font-size: 0.75rem;
+        }
+        .shared-folder-bubble { padding: 1rem;
+        }
+        .shared-folder-bubble h4 { font-size: 0.9rem;
+        }
+        #message-input { padding: 0.6rem 1rem; font-size: 0.9rem;
+        }
+        .control-button { width: 40px; height: 40px; font-size: 1.1rem;
+        }
+        #message-form { gap: 0.5rem;
+        }
+      }
+    </style>
+</head>
+<body class="antialiased">
+
+    <header class="app-header">
+      <div style="display:flex;align-items:center;">
+        <div class="brand">
+          <img src="fde8b58d-513b-45b3-9a8b-8a81e7535bec.jpg" alt="WordWhizzy Logo" class="logo">
+        </div>
+        <nav class="main-nav" aria-label="Chính">
+          <a href="./index.html" title="Trang chủ"><i class="fa-solid fa-house"></i> <span>Trang chủ</span></a>
+          <a href="./tuhoc.html" title="Thư viện"><i class="fa-solid fa-book-open"></i> <span>Thư viện</span></a>
+          <a href="./main/vocabulary.html" title="Tạo Flashcard"><i class="fa-solid fa-layer-group"></i> <span>Flashcard</span></a>
+          <a href="./chatai.html" title="Chat AI"><i class="fa-solid fa-comments"></i> <span>Chat AI</span></a>
+          <a href="./roomchat.html" title="Room Chat" class="active"><i class="fa-solid fa-users"></i> <span>Room Chat</span></a>
+          <a href="#pricing" title="Gói học"><i class="fa-solid fa-gem"></i> <span>Gói học</span></a>
+        </nav>
+      </div>
+
+      <div class="header-right">
+        <a href="thongbao.html" class="icon-btn" id="btn-noti" title="Thông báo"><i class="fa-regular fa-bell"></i></a>
+        <div class="icon-btn" id="btn-help" title="Trợ giúp"><i class="fa-regular fa-circle-question"></i></div>
+        
+        <div class="icon-btn mobile-menu-btn" id="mobileMenuBtn">
+          <i class="fa-solid fa-ellipsis-vertical"></i>
+          <div class="mobile-menu-dropdown" id="mobileMenuDropdown">
+            <a href="./chatai.html" title="Chat AI"><i class="fa-solid fa-comments"></i> <span>Chat AI</span></a>
+            <a href="./roomchat.html" title="Room Chat"><i class="fa-solid fa-users"></i> <span>Room Chat</span></a>
+            <a href="#pricing" title="Gói học"><i class="fa-solid fa-gem"></i> <span>Gói học</span></a>
+          </div>
+        </div>
+
+        <div class="user-display" id="headerControls"></div>
+      </div>
+    </header>
+    
+    <main id="app-container">
+        <div id="login-screen" class="w-full h-full flex items-center justify-center p-4" style="display: flex;">
+          <div class="login-card text-center">
+                <h1 class="text-4xl font-bold mb-4" style="color: #333">Chào mừng đến Phòng Thảo Luận</h1>
+                <p class="mb-8 text-lg" style="color: #666">Đăng nhập để tham gia và chia sẻ kiến thức cùng cộng đồng</p>
+                <button id="login-button">
+                    <svg class="w-6 h-6 mr-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C42.022,35.638,44,30.138,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>
+                    Đăng nhập với Google
+                </button>
+            </div>
+        </div>
+
+        <div id="chat-sidebar" class="chat-sidebar h-full hidden">
+            <div class="chat-sidebar-header">
+                <h2>Nhóm Chat</h2>
+                <div class="flex flex-col gap-2">
+                    <button id="create-group-btn" class="sidebar-button create">
+                        <i class="fas fa-plus"></i> Tạo nhóm chat
+                    </button>
+                    <div class="flex gap-2">
+                        <input type="text" id="join-group-input" placeholder="Nhập mã nhóm..." class="sidebar-input">
+                        <button id="join-group-btn" class="sidebar-button join">
+                             <i class="fas fa-sign-in-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+             <div id="group-list" class="flex-grow overflow-y-auto">
+            </div>
+        </div>
+
+        <div id="chat-screen" class="hidden h-full w-full">
+            <div class="chat-header">
+                <button id="back-to-sidebar-btn" class="control-button">
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+                <div class="group-info">
+                    <div id="current-chat-avatar" class="group-avatar"></div>
+                    <div class="group-details">
+                        <h3 id="current-chat-name">Nhóm Cộng Đồng</h3>
+                        <span id="member-count">Thành viên: ...</span>
+                    </div>
+                </div>
+                <button id="group-settings-btn" class="control-button" title="Cài đặt nhóm" style="display: none;">
+                    <i class="fas fa-cog"></i>
+                </button>
+            </div>
+            <div id="chat-messages"></div>
+            <div class="message-form-container">
+                <form id="message-form">
+                    <button type="button" id="share-folder-button" class="control-button">
+                         <i class="fa-solid fa-paperclip"></i>
+                    </button>
+                    <input id="message-input" type="text" placeholder="Nhập tin nhắn..." autocomplete="off">
+                    <button type="submit" id="send-button" class="control-button">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+    
+    <div id="folder-share-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <h2>Chia sẻ thư mục từ vựng</h2>
+             <p>Chọn các thư mục bạn muốn chia sẻ vào cuộc trò chuyện.</p>
+            <div id="folder-list-container" class="folder-list-container">
+                <p style="text-align: center; color: #aaa; padding: 1rem;">Đang tải danh sách thư mục...</p>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" id="cancel-share-button" class="modal-button modal-button-cancel">Hủy</button>
+                <button type="button" id="send-folders-button" class="modal-button modal-button-share">Chia sẻ</button>
+            </div>
+        </div>
+    </div>
+
+     <div id="delete-confirm-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <h2 style="color: #dc3545;"><i class="fas fa-exclamation-triangle"></i> Cảnh Báo</h2>
+            <p>Bạn có chắc chắn muốn xóa **TOÀN BỘ** tin nhắn trong Nhóm Cộng Đồng không? <br>Hành động này không thể hoàn tác.</p>
+            <div class="modal-buttons">
+                <button type="button" id="cancel-delete-btn" class="modal-button modal-button-cancel">Không</button>
+                 <button type="button" id="confirm-delete-btn" class="modal-button modal-button-danger">Có, Xóa Tất Cả</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="group-settings-modal" class="modal-backdrop hidden">
+        <div class="modal-content">
+            <h2>Cài đặt Nhóm</h2>
+            <div class="settings-input-group">
+                <label for="group-name-input">Tên nhóm</label>
+                <input type="text" id="group-name-input" class="sidebar-input">
+            </div>
+            <div class="settings-input-group">
+                <label>Thành viên (<span id="settings-member-count">0</span>)</label>
+                <div id="member-list-container"></div>
+            </div>
+            <div class="modal-buttons" style="justify-content: space-between;">
+                <button type="button" id="leave-group-btn" class="modal-button modal-button-danger">Rời Nhóm</button>
+                <div>
+                    <button type="button" id="cancel-settings-btn" class="modal-button modal-button-cancel">Hủy</button>
+                    <button type="button" id="save-settings-btn" class="modal-button modal-button-share">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="settings-popup-container"></div>
+    
+    <audio id="send-sound" src="https://code.s3.yandex.net/web-code/foreign-language/chat-message.mp3" preload="auto"></audio>
+
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
+  <script type="module">
+        const firebaseConfig = {
+             apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
+            authDomain: "wordwhizzy.firebaseapp.com",
+            projectId: "wordwhizzy",
+            storageBucket: "wordwhizzy.appspot.com",
+            messagingSenderId: "179575783469",
+            appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4",
+        };
+        if (!firebase.apps.length) {
+          firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        // DOM Elements
+        const loginScreen = document.getElementById('login-screen');
+        const chatScreen = document.getElementById('chat-screen');
+        const chatSidebar = document.getElementById('chat-sidebar');
+        const loginButton = document.getElementById('login-button');
+        const headerControls = document.getElementById("headerControls");
+        // ... (rest of the DOM elements are the same)
+        const messageForm = document.getElementById('message-form');
+        const messageInput = document.getElementById('message-input');
+        const chatMessages = document.getElementById('chat-messages');
+        const shareFolderButton = document.getElementById('share-folder-button');
+        const folderShareModal = document.getElementById('folder-share-modal');
+        const sendFoldersButton = document.getElementById('send-folders-button');
+        const cancelShareButton = document.getElementById('cancel-share-button');
+        const sendButton = document.getElementById('send-button');
+        const createGroupBtn = document.getElementById('create-group-btn');
+        const joinGroupBtn = document.getElementById('join-group-btn');
+        const joinGroupInput = document.getElementById('join-group-input');
+        const groupListContainer = document.getElementById('group-list');
+        const currentChatName = document.getElementById('current-chat-name');
+        const currentChatAvatar = document.getElementById('current-chat-avatar');
+        const memberCountSpan = document.getElementById('member-count');
+        const backToSidebarBtn = document.getElementById('back-to-sidebar-btn');
+        const leaveGroupBtn = document.getElementById('leave-group-btn');
+        const groupSettingsBtn = document.getElementById('group-settings-btn');
+        const deleteConfirmModal = document.getElementById('delete-confirm-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
+        const groupSettingsModal = document.getElementById('group-settings-modal');
+        const memberListContainer = document.getElementById('member-list-container');
+        const sendSound = document.getElementById('send-sound');
+
+        let currentUser = null;
+        let isEditing = false;
+        let editingMessageId = null;
+        let isAnonymousMode = false;
+        let currentChatRoom = 'community'; 
+        let unreadCounts = {};
+        let chatListeners = {}; 
+        let sharableFolders = []; // Variable to hold user's folders for sharing
+
+        let communityClickCount = 0;
+        let communityClickTimer = null;
+        const NUKE_CLICK_THRESHOLD = 5;
+        const anonymousNames = [
+            { name: "Chú mèo thông minh", avatar: "https://i.ibb.co/7rmr2zD/cat.png" },
+            { name: "Chú chó ngốc nghếch", avatar: "https://i.ibb.co/j32P9xK/dog.png" },
+            { name: "Con lợn cute", avatar: "https://i.ibb.co/51P8yLh/pig.png" },
+            { name: "Gấu trúc Panda", avatar: "https://i.ibb.co/y5rQJ33/panda.png" },
+            { name: "Cáo tinh ranh", avatar: "https://i.ibb.co/P9951kQ/fox.png" 
+            }
+        ];
+
+        // --- UTILS & AUTH LOGIC ---
+        async function getUserProfile(uid) { 
+            const docRef = db.collection("users").doc(uid);
+            const docSnap = await docRef.get(); 
+            return docSnap.exists ? docSnap.data() : { displayName: 'Thành viên đã rời', avatarURL: 'https://via.placeholder.com/40' };
+        }
+        async function saveUserProfile(uid, data) { await db.collection("users").doc(uid).set(data, { merge: true });
+        }
+        async function uploadAvatar(file, uid) { const storageRef = storage.ref(`avatars/${uid}/${file.name}`);
+        const snapshot = await storageRef.put(file); return await snapshot.ref.getDownloadURL(); }
+        
+        loginButton.addEventListener('click', () => {
+            auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(err => console.error("Login Error:", err));
+        });
+        // --- NEW AUTH STATE HANDLING (MERGED) ---
+        auth.onAuthStateChanged(async (user) => {
+          if (user) {
+            currentUser = user;
+            loginScreen.style.display = 'none';
+            chatSidebar.classList.remove('hidden');
+            chatSidebar.classList.add('flex');
+            if (window.innerWidth > 768) {
+  
+               chatScreen.classList.remove('hidden');
+               chatScreen.classList.add('flex');
+            }
+        
+            headerControls.innerHTML = ""; 
+        
+            let userProfile = await getUserProfile(user.uid);
+            let 
+            photoURL = (userProfile && userProfile.avatarURL) ? userProfile.avatarURL : (user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || 'User'}&background=random`);
+        
+            const userDisplay = document.createElement("div");
+            userDisplay.className = "user-display";
+            userDisplay.innerHTML = `<img src="${photoURL}" alt="Avatar" id="userAvatar"><div id="userDropdown" style="display:none;position:absolute;right:0;top:62px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px;box-shadow:var(--shadow);
+            z-index:1300; width: 200px;"></div>`;
+        
+            headerControls.appendChild(userDisplay);
+        
+            const userDropdown = document.getElementById('userDropdown');
+            if (userDropdown) {
+              userDropdown.innerHTML = `
+                <div style="padding: 8px 12px;
+                border-bottom: 1px solid var(--border); margin-bottom: 8px;">
+                    <div style="font-weight:600;font-size:14px;
+                    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${user.displayName || 'Người dùng'}</div>
+                    <div class="tiny" style="font-size:12px;
+                    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${user.email}</div>
+                </div>
+                <a href="#" id="settingsBtn" style="display:flex;
+                align-items:center; gap:8px; padding:8px 12px;border-radius:8px;color:var(--text-muted); font-size:14px; font-weight:500; text-decoration: none;"><i class="fa-solid fa-gear" style="width:16px;"></i>Cài đặt</a>
+                <a href="#" id="toggleAnonymousMode" style="display:flex;
+                align-items:center; gap:8px; padding:8px 12px;border-radius:8px;color:var(--text-muted); font-size:14px; font-weight:500; text-decoration: none;"><i class="fas fa-mask" style="width:16px;"></i>Chế độ ẩn danh</a>
+                <a href="#" id="logoutBtn" style="display:flex;
+                align-items:center; gap:8px; padding:8px 12px;border-radius:8px;color:var(--text-muted); font-size:14px; font-weight:500; text-decoration: none;"><i class="fa-solid fa-arrow-right-from-bracket" style="width:16px;"></i>Đăng xuất</a>
+              `;
+              userDropdown.querySelectorAll('a').forEach(link => {
+                link.onmouseover = () => { link.style.backgroundColor = 'var(--bg-soft)'; link.style.color='var(--accent)'};
+                link.onmouseout = () => { link.style.backgroundColor = 'transparent'; link.style.color='var(--text-muted)'};
+              });
+ 
+             }
+        
+            const mobileMenuDropdown = document.getElementById('mobileMenuDropdown');
+            userDisplay.addEventListener('click', (e) => {
+              e.stopPropagation();
+              if (userDropdown) userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block';
+            });
+ 
+         
+            document.addEventListener('click', (ev) => {
+              if (!ev.target.closest('.user-display') && !ev.target.closest('.mobile-menu-btn')) {
+                if (userDropdown) userDropdown.style.display = 'none';
+                if (mobileMenuDropdown) mobileMenuDropdown.style.display = 'none';
+              }
+            });
+        
+            const logoutBtn = document.getElementById('logoutBtn');
+            const settingsBtn = document.getElementById('settingsBtn');
+            const toggleAnonymousModeBtn = document.getElementById('toggleAnonymousMode');
+            
+            if (logoutBtn) logoutBtn.addEventListener('click', async (ev) => {
+              ev.preventDefault();
+              await auth.signOut();
+              window.location.reload();
+            });
+            if (settingsBtn) settingsBtn.addEventListener('click', (ev) => {
+              ev.preventDefault();
+              if (userDropdown) userDropdown.style.display = 'none';
+              showSettingsPopup(user);
+            });
+            if (toggleAnonymousModeBtn) {
+                toggleAnonymousModeBtn.innerHTML = isAnonymousMode ?
+                '<i class="fas fa-user" style="width:16px;"></i> Tắt ẩn danh' : '<i class="fas fa-mask" style="width:16px;"></i> Chế độ ẩn danh';
+                toggleAnonymousModeBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    isAnonymousMode = !isAnonymousMode;
+                    alert(isAnonymousMode ? 'Bạn đã bật chế độ ẩn danh.' : 'Bạn đã tắt chế độ ẩn danh.');
+                   
+                     toggleAnonymousModeBtn.innerHTML = isAnonymousMode ? '<i class="fas fa-user" style="width:16px;"></i> Tắt ẩn danh' : '<i class="fas fa-mask" style="width:16px;"></i> Chế độ ẩn danh';
+                    if (userDropdown) userDropdown.style.display = 'none';
+                });
+            }
+            
+            listenForChatRooms();
+            switchChatRoom('community', 'Nhóm Cộng Đồng');
+        
+          } else {
+            currentUser = null;
+            loginScreen.style.display = 'flex';
+            chatScreen.classList.add('hidden');
+            chatSidebar.classList.add('hidden');
+            if(headerControls) headerControls.innerHTML = '';
+            document.body.classList.remove('chat-active');
+          }
+        });
+        // --- SETTINGS POPUP LOGIC ---
+        const settingsPopupHTML = `<div class="popup" id="settingsPopup" style="display:none; color: #1e293b;"><h4>Cài đặt tài khoản</h4><form id="settingsForm"><div style="margin-bottom: 1rem; display: flex; flex-direction: column; align-items: center;"><img id="currentAvatar" src="https://via.placeholder.com/100/60a5fa/ffffff?text=AV" alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 10px; border: 2px solid var(--border-color);"><input type="file" id="avatarUpload" accept="image/*" style="margin-bottom: 1rem;"></div><div style="text-align: left; margin-bottom: 1rem;"><label for="displayName" style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Tên hiển thị:</label><input type="text" id="displayName" placeholder="Tên của bạn" style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 1rem;"></div><div style="text-align: left; margin-bottom: 1rem;"><label for="dob" style="display: block;
+        margin-bottom: 0.5rem; font-weight: 500;">Ngày sinh:</label><input type="date" id="dob" style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 8px;
+        font-size: 1rem;"></div><div style="text-align: left; margin-bottom: 1.5rem;"><label for="classGrade" style="display: block; margin-bottom: 0.5rem;
+        font-weight: 500;">Lớp/Trình độ:</label><input type="text" id="classGrade" placeholder="Ví dụ: Lớp 10, Intermediate" style="width: 100%; padding: 0.8rem; border: 1px solid var(--border-color); border-radius: 8px;
+        font-size: 1rem;"></div><button type="submit" style="margin-right: 1rem; padding: 0.8rem 1.2rem; background: var(--accent); color: #fff; border: none; border-radius: 8px;
+        cursor: pointer;">Lưu thay đổi</button><button type="button" class="close-btn" id="closeSettingsPopup" style="padding: 0.8rem 1.2rem;
+        border-radius: 8px;">Đóng</button></form></div>`;
+        document.getElementById('settings-popup-container').innerHTML = settingsPopupHTML;
+        
+        document.getElementById("closeSettingsPopup")?.addEventListener("click", () => { document.getElementById("settingsPopup").style.display = "none"; });
+        
+        async function showSettingsPopup(user) {
+            const userProfile = await getUserProfile(user.uid); 
+            const settingsPopup = document.getElementById("settingsPopup");
+            if(settingsPopup) settingsPopup.style.display = 
+            "block";
+            document.getElementById("currentAvatar").src = userProfile?.avatarURL || user.photoURL || "https://via.placeholder.com/100/007bff/ffffff?text=AV";
+            document.getElementById("displayName").value = userProfile?.displayName || user.displayName || "";
+            document.getElementById("dob").value = userProfile?.dob || "";
+            document.getElementById("classGrade").value = userProfile?.classGrade ||
+            "";
+        }
+
+        document.getElementById("settingsForm")?.addEventListener("submit", async (e) => { 
+            e.preventDefault(); 
+            const user = auth.currentUser; 
+            if (!user) { alert("Bạn cần đăng nhập để cập nhật."); return; }
+            try { 
+                let newAvatarURL = document.getElementById("currentAvatar").src;
+ 
+                 const avatarFile = document.getElementById("avatarUpload").files[0]; 
+                if (avatarFile) { newAvatarURL = await uploadAvatar(avatarFile, user.uid); }
+
+                const newDisplayName = document.getElementById("displayName").value;
+                await user.updateProfile({ displayName: newDisplayName, photoURL: newAvatarURL });
+                
+ 
+                await saveUserProfile(user.uid, { 
+                    displayName: newDisplayName, avatarURL: newAvatarURL, 
+                    dob: document.getElementById("dob").value, classGrade: document.getElementById("classGrade").value,
+                    lastUpdated: firebase.firestore.FieldValue.serverTimestamp(), 
+            
+             }); 
+                alert("Cập nhật thành công!"); 
+                document.getElementById("settingsPopup").style.display = "none"; 
+                window.location.reload();
+            } catch (error) { alert("Lỗi khi cập nhật: " + error.message);
+            } 
+        });
+        // --- MOBILE MENU LOGIC ---
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenuDropdown = document.getElementById('mobileMenuDropdown');
+        if(mobileMenuBtn) {
+          mobileMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            mobileMenuDropdown.style.display = mobileMenuDropdown.style.display === 'block' ? 'none' : 'block';
+          });
+        }
+        
+        // --- CHAT ROOM LOGIC ---
+        function generateChatCode() { return Math.floor(100000 + Math.random() * 900000).toString(); }
+
+        createGroupBtn.addEventListener('click', async () => {
+            if (!currentUser) return;
+            const groupName = prompt("Nhập tên nhóm chat:");
+            if (groupName) {
+                const chatCode = generateChatCode();
+              
+                 try {
+                    await db.collection('chatRooms').doc(chatCode).set({
+                        name: groupName, createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        createdBy: currentUser.uid, members: [currentUser.uid], type: 'private'
+                    
+                    });
+                    alert(`Nhóm "${groupName}" đã tạo. Mã nhóm: ${chatCode}.`);
+                    switchChatRoom(chatCode, groupName);
+                } catch (error) { alert("Lỗi khi tạo nhóm chat."); }
+            }
+        });
+        joinGroupBtn.addEventListener('click', async () => {
+            if (!currentUser) return;
+            const chatCode = joinGroupInput.value.trim();
+            if (chatCode) {
+                try {
+                    const chatRoomDoc = await db.collection('chatRooms').doc(chatCode).get();
+            
+                     if (chatRoomDoc.exists) {
+                        const roomData = chatRoomDoc.data();
+                        await db.collection('chatRooms').doc(chatCode).update({ members: firebase.firestore.FieldValue.arrayUnion(currentUser.uid) });
+                        alert(`Đã tham gia nhóm "${roomData.name}".`);
+       
+                         switchChatRoom(chatCode, roomData.name);
+                        joinGroupInput.value = '';
+                    } else { alert("Mã nhóm không hợp lệ."); }
+                } catch (error) { alert("Lỗi khi tham gia nhóm."); }
+   
+             }
+        });
+        async function deleteAllCommunityMessages() {
+            try {
+                const messagesRef = db.collection('messages');
+                const querySnapshot = await messagesRef.get();
+                if (querySnapshot.empty) {
+                    alert("Không có tin nhắn nào để xóa.");
+                    return;
+                }
+                const batch = db.batch();
+                querySnapshot.docs.forEach(doc => {
+                    batch.delete(doc.ref);
+                });
+                await batch.commit();
+                alert("Đã xóa toàn bộ tin nhắn trong Nhóm Cộng Đồng.");
+            } catch (error) {
+                console.error("Error deleting all messages: ", error);
+                alert("Đã xảy ra lỗi khi xóa tin nhắn.");
+            }
+        }
+        
+        function showDeleteConfirmModal() {
+            deleteConfirmModal.classList.remove('hidden');
+            setTimeout(() => deleteConfirmModal.classList.add('visible'), 10);
+        }
+        function hideDeleteConfirmModal() {
+            deleteConfirmModal.classList.remove('visible');
+            setTimeout(() => deleteConfirmModal.classList.add('hidden'), 300);
+        }
+        cancelDeleteBtn.addEventListener('click', hideDeleteConfirmModal);
+        confirmDeleteBtn.addEventListener('click', () => {
+            hideDeleteConfirmModal();
+            deleteAllCommunityMessages();
+        });
+        function listenForChatRooms() {
+            groupListContainer.addEventListener('click', (e) => {
+                const groupItem = e.target.closest('.group-item');
+                const copyBtn = e.target.closest('.copy-code-btn');
+
+                if (copyBtn) {
+                    const code = copyBtn.dataset.code;
+    
+                     navigator.clipboard.writeText(code).then(() => {
+                        const icon = copyBtn.querySelector('i');
+                        icon.classList.remove('fa-copy');
+                        icon.classList.add('fa-check');
+       
+                         setTimeout(() => {
+                           icon.classList.remove('fa-check');
+                           icon.classList.add('fa-copy');
+                        }, 1500);
+  
+                     });
+                    return; 
+                }
+
+                if (!groupItem) return;
+
+                if (groupItem.id === 'group-community') {
+       
+                     clearTimeout(communityClickTimer);
+                    communityClickCount++;
+                    communityClickTimer = setTimeout(() => { communityClickCount = 0; }, 1500);
+                    if (communityClickCount === NUKE_CLICK_THRESHOLD) {
+                        showDeleteConfirmModal();
+                        communityClickCount = 0;
+                    }
+                }
+                
+                const code = groupItem.dataset.code;
+                const name = groupItem.dataset.name;
+                if (code && name && currentChatRoom !== code) {
+                    switchChatRoom(code, name);
+                }
+            });
+            // Listen for changes in private chat rooms
+            db.collection('chatRooms').where('members', 'array-contains', currentUser.uid)
+              .onSnapshot(snapshot => {
+                const communityHTML = `
+                    <div id="group-community" class="group-item" data-code="community" data-name="Nhóm Cộng Đồng">
+                        <div class="group-avatar"><i class="fas fa-globe"></i></div>
+                        <div class="group-item-content">
+                            <span class="group-name">Nhóm Cộng Đồng</span>
+                        </div>
+                        <div id="unread-badge-community" class="unread-badge" style="display: none;"></div>
+                    </div>`;
+                
+                const privateRoomsHTML = snapshot.docs.map(doc => {
+                    const room = {...doc.data(), id: doc.id};
+                    if (!chatListeners[room.id]) listenForMessages(room.id, false);
+                    const initial = room.name.charAt(0).toUpperCase();
+                    return `
+                        <div id="group-${room.id}" class="group-item" data-code="${room.id}" data-name="${room.name}">
+                             <div class="group-avatar">${initial}</div>
+                            <div class="group-item-content">
+                                <span class="group-name">${room.name}</span>
+                                <span class="group-code">
+                                    Mã: ${room.id}
+                                    <button class="copy-code-btn" data-code="${room.id}" title="Sao chép mã"><i class="fas fa-copy"></i></button>
+                                </span>
+                            </div>
+                            <div id="unread-badge-${room.id}" class="unread-badge" style="display: none;"></div>
+                        </div>`;
+                }).join('');
+
+                groupListContainer.innerHTML = communityHTML + privateRoomsHTML;
+                
+                const currentActive = groupListContainer.querySelector(`[data-code="${currentChatRoom}"]`);
+                if(currentActive) currentActive.classList.add('active');
+                updateAllUnreadBadges();
+            });
+        }
+        
+        async function switchChatRoom(chatCode, chatName) {
+            currentChatRoom = chatCode;
+            currentChatName.textContent = chatName;
+            chatMessages.innerHTML = '';
+            
+            if (chatCode === 'community') {
+                groupSettingsBtn.style.display = 'none';
+                currentChatAvatar.innerHTML = '<i class="fas fa-globe"></i>';
+                memberCountSpan.textContent = `Thành viên: Đông đảo`;
+            } else {
+                groupSettingsBtn.style.display = 'flex';
+                currentChatAvatar.innerHTML = chatName.charAt(0).toUpperCase();
+                const roomDoc = await db.collection('chatRooms').doc(chatCode).get();
+                if (roomDoc.exists) {
+                    const roomData = roomDoc.data();
+                    memberCountSpan.textContent = `Thành viên: ${roomData.members?.length || 0}`;
+                }
+            }
+            
+            document.querySelectorAll('.group-item').forEach(el => el.classList.remove('active'));
+            const newActive = document.querySelector(`[data-code="${chatCode}"]`);
+            if (newActive) newActive.classList.add('active');
+
+            if (window.mainChatUnsubscribe) window.mainChatUnsubscribe();
+            listenForMessages(chatCode, true);
+
+            unreadCounts[chatCode] = 0;
+            updateUnreadBadge(chatCode);
+            localStorage.setItem(`lastRead_${chatCode}`, new Date().toISOString());
+            if (window.innerWidth <= 768) {
+                document.body.classList.add('chat-active');
+            }
+        }
+        
+        backToSidebarBtn.addEventListener('click', () => {
+            document.body.classList.remove('chat-active');
+        });
+        
+        messageForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = messageInput.value.trim();
+            if (text && currentUser) {
+                isEditing ? editMessage(editingMessageId, text) : sendMessage({ type: 'text', text });
+                messageInput.value = '';
+           
+             }
+        });
+        function closeShareModal() { 
+            folderShareModal.classList.remove('visible');
+            setTimeout(() => folderShareModal.classList.add('hidden'), 300);
+        }
+        shareFolderButton.addEventListener('click', () => { 
+            folderShareModal.classList.remove('hidden');
+            setTimeout(() => folderShareModal.classList.add('visible'), 10);
+            loadUserFoldersForSharing(); 
+        });
+        cancelShareButton.addEventListener('click', closeShareModal);
+
+        async function loadUserFoldersForSharing() {
+            const container = document.getElementById('folder-list-container');
+            container.innerHTML = `<p style="text-align:center; color:#aaa; padding:1rem;">Đang tải...</p>`;
+            if (!currentUser) return;
+
+            const userDoc = await db.collection('users').doc(currentUser.uid).get();
+            if (!userDoc.exists || !userDoc.data().folders) {
+                container.innerHTML = `<p style="text-align:center; color:#f87171; padding:1rem;">Không có thư mục.</p>`;
+                sharableFolders = [];
+                return;
+            }
+
+            const allFolders = Object.values(userDoc.data().folders).flat();
+            sharableFolders = allFolders; // Store folders for later use
+
+            if (allFolders.length === 0) {
+                 container.innerHTML = `<p style="text-align:center; color:#aaa; padding:1rem;">Bạn chưa có thư mục nào.</p>`;
+                 return;
+            }
+
+            container.innerHTML = allFolders.map(folder => `
+                <label for="share_${folder.id}" class="folder-checkbox">
+                    <input type="checkbox" id="share_${folder.id}" data-id="${folder.id}" data-name="${folder.name}" class="share-folder-checkbox">
+                    <i class="fas fa-folder" style="font-size: 1.1rem;"></i>
+                     <span>${folder.name}</span>
+                </label>
+            `).join('');
+        }
+        
+        sendFoldersButton.addEventListener('click', async () => {
+            const selected = document.querySelectorAll('.share-folder-checkbox:checked');
+            if (selected.length === 0) {
+                alert("Vui lòng chọn ít nhất một thư mục để chia sẻ.");
+                return;
+            }
+            sendFoldersButton.disabled = true;
+            sendFoldersButton.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Đang chuẩn bị...`;
+
+            try {
+                let foldersToShare = [];
+                for (const checkbox of selected) {
+                    const folderId = checkbox.dataset.id;
+                    const fullFolderData = sharableFolders.find(f => f.id.toString() === folderId);
+
+                    if (fullFolderData) {
+                        const wordsDoc = await db.collection('users').doc(currentUser.uid).collection('flashcards').doc(folderId).get();
+                        const words = wordsDoc.exists ? wordsDoc.data().words : [];
+                        // Bundle the full folder metadata AND its words together
+                        foldersToShare.push({ ...fullFolderData, words: words });
+                    }
+                }
+                
+                if (foldersToShare.length > 0) {
+                    sendMessage({ type: 'folder_share', sharedFolders: foldersToShare });
+                }
+                closeShareModal();
+
+            } catch (error) {
+                console.error("Error preparing shared folders:", error);
+                alert("Đã có lỗi xảy ra khi chuẩn bị thư mục.");
+            } finally {
+                sendFoldersButton.disabled = false;
+                sendFoldersButton.innerHTML = `Chia sẻ`;
+            }
+        });
+
+        function sendMessage(data) {
+            let messageData = { ...data, createdAt: firebase.firestore.FieldValue.serverTimestamp(), uid: currentUser.uid };
+            if (isAnonymousMode) {
+                const anon = anonymousNames[Math.floor(Math.random() * anonymousNames.length)];
+                messageData.displayName = anon.name;
+                messageData.photoURL = anon.avatar;
+            } else {
+                messageData.displayName = currentUser.displayName;
+                messageData.photoURL = currentUser.photoURL;
+            }
+
+            if (data.type === 'text' && sendSound) {
+                sendSound.currentTime = 0;
+                sendSound.play().catch(e => console.log("Audio play failed:", e));
+            }
+            
+            const collectionName = currentChatRoom === 'community' ?
+            'messages' : `chatRooms/${currentChatRoom}/messages`;
+            db.collection(collectionName).add(messageData).catch(err => console.error("Send Error:", err));
+        }
+        
+        function editMessage(messageId, newText) {
+            const collectionName = currentChatRoom === 'community' ?
+            'messages' : `chatRooms/${currentChatRoom}/messages`;
+            db.collection(collectionName).doc(messageId).update({ text: newText, edited: true, editedAt: firebase.firestore.FieldValue.serverTimestamp() })
+            .then(() => {
+                isEditing = false; editingMessageId = null;
+                sendButton.innerHTML = '<i class="fas fa-paper-plane"></i>';
+                messageInput.placeholder = "Nhập tin nhắn...";
+            });
+        }
+        
+        function deleteMessage(messageId) {
+            if (confirm("Bạn có chắc muốn thu hồi tin nhắn?")) {
+                const collectionName = currentChatRoom === 'community' ?
+                'messages' : `chatRooms/${currentChatRoom}/messages`;
+                db.collection(collectionName).doc(messageId).delete();
+            }
+        }
+        
+        function listenForMessages(chatCode, isMainView) {
+            const collectionName = chatCode === 'community' ?
+            'messages' : `chatRooms/${chatCode}/messages`;
+            const chatRef = db.collection(collectionName);
+            const lastReadTime = localStorage.getItem(`lastRead_${chatCode}`) || new Date(0).toISOString();
+            
+            if (chatCode !== 'community') {
+                db.collection('chatRooms').doc(chatCode).onSnapshot(doc => {
+                    if (doc.exists && currentChatRoom === chatCode) {
+                        const roomData = doc.data();
+                        currentChatName.textContent = roomData.name;
+                        currentChatAvatar.textContent = roomData.name.charAt(0).toUpperCase();
+                        memberCountSpan.textContent = `Thành viên: ${roomData.members?.length || 0}`;
+                    }
+                });
+            }
+
+            const listener = chatRef.orderBy("createdAt").onSnapshot((snapshot) => {
+                if (!isMainView) {
+                    let newMessages = 0;
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                           const msg = change.doc.data();
+                           if (msg.createdAt && msg.createdAt.toDate() > new Date(lastReadTime) && msg.uid !== currentUser.uid) {
+                               newMessages++;
+                           }
+                        }
+                    });
+                    if (newMessages > 0) {
+                         unreadCounts[chatCode] = (unreadCounts[chatCode] || 0) + newMessages;
+                        updateUnreadBadge(chatCode);
+                    }
+                } else { 
+                    snapshot.docChanges().forEach(change => {
+                        if (change.type === 'added') {
+                           displayMessage(change.doc);
+                       
+                         } else if (change.type === 'modified') {
+                           updateMessage(change.doc);
+                        } else if (change.type === 'removed') {
+                           handleRecalledMessage(change.doc.id);
+         
+                         }
+                    });
+                    setTimeout(() => { chatMessages.scrollTop = chatMessages.scrollHeight; }, 50);
+                }
+            });
+            if (isMainView) {
+                window.mainChatUnsubscribe = listener;
+            } else {
+                chatListeners[chatCode] = listener;
+            }
+        }
+
+        function updateUnreadBadge(chatCode) {
+            const badge = document.getElementById(`unread-badge-${chatCode}`);
+            if (badge) {
+                const count = unreadCounts[chatCode] ||
+                0;
+                if (count > 0) {
+                    badge.textContent = count > 9 ?
+                    '9+' : count;
+                    badge.style.display = 'block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }
+        function updateAllUnreadBadges() {
+            Object.keys(unreadCounts).forEach(updateUnreadBadge);
+        }
+        
+        function updateMessage(doc) {
+            const el = document.getElementById(doc.id);
+            if (el) {
+                const messageData = doc.data();
+                const p = el.querySelector('.message-bubble p');
+                if (p) {
+                    p.textContent = messageData.text;
+                }
+                if (messageData.edited) {
+                    const indicator = el.querySelector('.edited-indicator');
+                    if(indicator) indicator.style.display = 'inline';
+                }
+            }
+        }
+
+        function handleRecalledMessage(messageId) {
+            const messageEl = document.getElementById(messageId);
+            if (messageEl) {
+                messageEl.classList.add('recalled');
+                const contentWrapper = messageEl.querySelector('.message-content-wrapper');
+                if (contentWrapper) {
+                    contentWrapper.innerHTML = `
+                        <div class="recalled-message-bubble">
+                            <p><i class="fas fa-ban"></i> Tin nhắn đã được thu hồi</p>
+           
+                         </div>
+                    `;
+                }
+            }
+        }
+
+        chatMessages.addEventListener('click', (e) => {
+            const target = e.target.closest('button[data-action]');
+            if (!target) return;
+            
+            const action = target.dataset.action;
+            const 
+            messageId = target.dataset.messageId;
+
+            if (action === 'edit') {
+                startEditMessage(messageId, target.dataset.messageText);
+            } else if (action === 'delete') {
+                deleteMessage(messageId);
+            } else if (action === 'import') {
+             
+                 importSharedFolders(target, JSON.parse(target.dataset.messageData));
+            }
+        });
+        function displayMessage(doc) {
+            if (document.getElementById(doc.id)) return;
+            const message = doc.data();
+            const isCurrentUser = message.uid === currentUser?.uid;
+            const messageWrapper = document.createElement('div');
+            messageWrapper.id = doc.id;
+            
+
+            const photoURL = message.photoURL || `https://ui-avatars.com/api/?name=${message.displayName}`;
+            const timeString = message.createdAt ?
+            message.createdAt.toDate().toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) : '';
+            const escapedText = message.text?.replace(/'/g, "&apos;") || '';
+            
+            const optionsHTML = isCurrentUser ?
+            `
+                <div class="message-options">
+                    <button data-action="edit" data-message-id="${doc.id}" data-message-text='${escapedText}' title="Sửa"><i class="fas fa-pen"></i></button>
+                    <button data-action="delete" data-message-id="${doc.id}" title="Thu hồi"><i class="fas fa-trash"></i></button>
+                </div>
+            ` : '';
+            let innerBubbleHTML = '';
+
+            if (message.type === 'system') {
+                messageWrapper.className = 'system-message';
+                messageWrapper.innerHTML = `<p>${message.text || ''}</p>`;
+            } else {
+                 messageWrapper.className = `message-row ${isCurrentUser ? 'current-user' : ''}`;
+                if (message.type === 'folder_share') {
+                    // Note: message.sharedFolders now contains the full folder data including words
+                    const foldersHTML = message.sharedFolders.map(f => `<li><i class="fas fa-folder"></i><span>${f.name}</span></li>`).join('');
+                    const messageDataString = JSON.stringify(message).replace(/'/g, "&apos;");
+                    innerBubbleHTML = `
+                        <div class="shared-folder-bubble">
+                            <h4>${message.displayName} đã chia sẻ ${message.sharedFolders.length} thư mục:</h4>
+                            <ul class="shared-folder-list">${foldersHTML}</ul>
+     
+                             ${!isCurrentUser ?
+                            `<button class="btn-import" data-action="import" data-message-data='${messageDataString}'><i class="fas fa-download"></i> Tải về & Nhập</button>` : `<p style="font-size: 0.75rem; color: #aaa; margin-top: 1rem;">Đây là thư mục bạn đã chia sẻ.</p>`}
+                        </div>`;
+                } else {
+                    innerBubbleHTML = `<div class="message-bubble"><p>${message.text ||
+                    ''}</p></div>`;
+                }
+
+                messageWrapper.innerHTML = `
+                    <img class="avatar" src="${photoURL}" alt="Avatar">
+                    <div class="message-content-wrapper">
+                        ${optionsHTML}
+             
+                         <div class="message-header">
+                            <span class="sender-name">${isCurrentUser ?
+                            'Bạn' : message.displayName}</span>
+                            <span class="message-timestamp">${timeString}</span>
+                            <span class="edited-indicator" style="display: ${message.edited ? 'inline' : 'none'};">(đã sửa)</span>
+                        </div>
+         
+                         <div class="message-container">
+                            ${innerBubbleHTML}
+                        </div>
+                    </div>`;
+            }
+            
+            chatMessages.appendChild(messageWrapper);
+        }
+        
+        function startEditMessage(id, text) {
+            isEditing = true;
+            editingMessageId = id;
+            messageInput.value = text.replace(/&apos;/g, "'");; 
+            messageInput.focus();
+            sendButton.innerHTML = '<i class="fas fa-check"></i>';
+            messageInput.placeholder = "Sửa tin nhắn...";
+        };
+        async function importSharedFolders(button, messageData) {
+            if (!currentUser) return;
+            button.disabled = true;
+            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang nhập...';
+            try {
+                const currentUserRef = db.collection('users').doc(currentUser.uid);
+                const currentUserDoc = await currentUserRef.get();
+                let currentUserFolders = currentUserDoc.exists ? (currentUserDoc.data().folders || {}) : {};
+                
+                let importedCount = 0;
+                let existedCount = 0;
+                
+                const allCurrentUserFolders = Object.values(currentUserFolders).flat();
+
+                for (const sharedFolderData of messageData.sharedFolders) {
+                    // Check if the current user already has this folder by its unique ID
+                    if (!allCurrentUserFolders.some(f => f.id === sharedFolderData.id)) {
+                        const words = sharedFolderData.words || [];
+                        
+                        // Prepare folder metadata for the main user document (without the large 'words' array)
+                        const folderMetadata = { ...sharedFolderData };
+                        delete folderMetadata.words;
+
+                        if (!currentUserFolders.day1) currentUserFolders.day1 = [];
+                        // Add the new folder to Day 1
+                        currentUserFolders.day1.push({
+                            ...folderMetadata,
+                            currentDay: 1,
+                            lastMoved: new Date().toISOString()
+                        });
+                        
+                        // Save the words to the user's private 'flashcards' subcollection
+                        await db.collection('users').doc(currentUser.uid).collection('flashcards').doc(sharedFolderData.id.toString()).set({ words });
+                        
+                        importedCount++;
+                    } else {
+                        existedCount++;
+                    }
+                }
+                
+                if (importedCount > 0) {
+                    await currentUserRef.set({ folders: currentUserFolders }, { merge: true });
+                }
+
+                button.innerHTML = `<i class="fas fa-check"></i> Hoàn tất!`;
+                alert(`Đã nhập ${importedCount} thư mục mới thành công. ${existedCount} thư mục đã tồn tại từ trước.`);
+
+            } catch (error) {
+                console.error("Folder import error:", error);
+                alert("Lỗi khi nhập thư mục: " + error.message);
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-download"></i> Thử lại';
+            }
+        };
+
+        // --- GROUP SETTINGS MODAL LOGIC ---
+        function showGroupSettingsModal() {
+            groupSettingsModal.classList.remove('hidden');
+            setTimeout(() => groupSettingsModal.classList.add('visible'), 10);
+        }
+        function hideGroupSettingsModal() {
+            groupSettingsModal.classList.remove('visible');
+            setTimeout(() => groupSettingsModal.classList.add('hidden'), 300);
+        }
+
+        groupSettingsBtn.addEventListener('click', async () => {
+            if (currentChatRoom === 'community') return;
+            const roomDoc = await db.collection('chatRooms').doc(currentChatRoom).get();
+            if (!roomDoc.exists) return;
+            const roomData = roomDoc.data();
+            
+            document.getElementById('group-name-input').value = roomData.name;
+            document.getElementById('settings-member-count').textContent = roomData.members.length;
+            
+            // Hide leave button for admin
+            leaveGroupBtn.style.display = (currentUser.uid === roomData.createdBy) ? 'none' : 'block';
+            
+            displayGroupMembers(roomData);
+            showGroupSettingsModal();
+        });
+
+        async function displayGroupMembers(roomData) {
+            memberListContainer.innerHTML = '<li>Đang tải...</li>';
+            let membersHTML = '';
+            const isAdmin = currentUser.uid === roomData.createdBy;
+
+            for (const uid of roomData.members) {
+                const userProfile = await getUserProfile(uid);
+                const name = userProfile?.displayName || 'Thành viên';
+                const avatar = userProfile?.avatarURL || `https://ui-avatars.com/api/?name=${name}`;
+                const isCreator = uid === roomData.createdBy;
+                
+                const adminBadge = isCreator ? '<span class="admin-badge">Nhóm trưởng</span>' : '';
+                const kickButton = (isAdmin && !isCreator) ? `<button class="kick-member-btn" data-uid="${uid}" data-name="${name}">Xóa</button>` : '';
+
+                membersHTML += `<div class="member-item">
+                    <img src="${avatar}" alt="${name}">
+                    <div class="member-info">
+                        <span>${name}</span>
+                        ${adminBadge}
+                    </div>
+                    ${kickButton}
+                </div>`;
+            }
+            memberListContainer.innerHTML = membersHTML;
+        }
+        
+        document.getElementById('cancel-settings-btn').addEventListener('click', hideGroupSettingsModal);
+
+        document.getElementById('save-settings-btn').addEventListener('click', async () => {
+            const newName = document.getElementById('group-name-input').value.trim();
+            const roomRef = db.collection('chatRooms').doc(currentChatRoom);
+
+            try {
+                const roomDoc = await roomRef.get();
+                const currentData = roomDoc.data();
+                
+                if (newName && newName !== currentData.name) {
+                    await roomRef.update({ name: newName });
+                    sendMessage({ type: 'system', text: `${currentUser.displayName} đã đổi tên nhóm thành "${newName}".` });
+                    alert('Cập nhật thành công!');
+                }
+                hideGroupSettingsModal();
+
+            } catch (error) {
+                alert('Lỗi khi cập nhật: ' + error.message);
+            }
+        });
+        
+        memberListContainer.addEventListener('click', async (e) => {
+            if (e.target.classList.contains('kick-member-btn')) {
+                const uidToKick = e.target.dataset.uid;
+                const nameToKick = e.target.dataset.name;
+
+                if (confirm(`Bạn có chắc muốn xóa ${nameToKick} khỏi nhóm không?`)) {
+                    try {
+                        const roomRef = db.collection('chatRooms').doc(currentChatRoom);
+                        await roomRef.update({
+                            members: firebase.firestore.FieldValue.arrayRemove(uidToKick)
+                        });
+                        sendMessage({ type: 'system', text: `${nameToKick} đã bị xóa khỏi nhóm bởi nhóm trưởng.` });
+                        // Refresh member list
+                        const updatedDoc = await roomRef.get();
+                        displayGroupMembers(updatedDoc.data());
+
+                    } catch (error) {
+                        alert("Lỗi khi xóa thành viên: " + error.message);
+                    }
+                }
+            }
+        });
+
+
+        leaveGroupBtn.addEventListener('click', async () => {
+            if (!currentUser || currentChatRoom === 'community') return;
+            const confirmation = confirm(`Bạn có chắc muốn rời khỏi nhóm "${currentChatName.textContent}" không?`);
+            if (confirmation) {
+                try {
+                    const chatRoomRef = db.collection('chatRooms').doc(currentChatRoom);
+ 
+                     if (chatListeners[currentChatRoom]) {
+                        chatListeners[currentChatRoom]();
+                        delete chatListeners[currentChatRoom];
+                    }
+          
+                     const systemMessageRef = chatRoomRef.collection('messages').doc();
+                    const batch = db.batch();
+                    batch.update(chatRoomRef, { members: firebase.firestore.FieldValue.arrayRemove(currentUser.uid) });
+                    batch.set(systemMessageRef, {
+                   
+                         type: 'system', text: `${currentUser.displayName} đã rời khỏi nhóm.`,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    });
+                    await batch.commit();
+                    hideGroupSettingsModal();
+                    switchChatRoom('community', 'Nhóm Cộng Đồng');
+                } catch (error) {
+                    console.error("Error leaving group:", error);
+                    alert("Đã xảy ra lỗi khi rời nhóm.");
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>

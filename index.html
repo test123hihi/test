@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WordWhizzy — Học Từ Vựng Thông Minh</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+  <style>
+  
+  /* Chỉ áp dụng cho thiết bị cảm ứng để không ảnh hưởng keyboard users */
+@media (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent; /* iOS, Chrome mobile */
+    -webkit-touch-callout: none;              /* tắt menu giữ chạm (iOS) nếu cần */
+  }
+}
+
+    :root{
+      --bg: #ffffff;
+      --bg-soft: #f9f9f9;
+      --text: #1f2937; /* Dark Gray-Blue */
+      --text-muted: #6B7280; /* Cool Gray */
+      --border: #e8e8e8;
+      --border-dashed: #dcdcdc;
+      --radius: 14px;
+      --shadow: 0 8px 24px rgba(59, 130, 246, 0.1); /* Blueish Shadow */
+      --glass: rgba(255,255,255,0.8);
+      --accent: #3B82F6; /* Primary Blue */
+      --gap: 24px;
+      font-synthesis: none;
+    }
+
+    /* Reset & base */
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale}
+    a{text-decoration:none;color:inherit}
+    img, video{max-width:100%;display:block}
+
+    /* Header */
+    header.app-header{
+      position:fixed;left:0;right:0;top:0;height:72px;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 24px;
+      background:var(--glass);
+      border-bottom:1px solid var(--border);
+      z-index:1200;
+      backdrop-filter: blur(8px);
+    }
+    .brand{display:flex;align-items:center;gap:12px;}
+    
+    /* === THAY ĐỔI LOGO BẮT ĐẦU TỪ ĐÂY === */
+    .logo {
+      width: auto; /* Tự động điều chỉnh chiều rộng */
+      max-height: 48px; /* Giữ chiều cao tối đa của logo */
+      border-radius: 8px; /* Giữ bo góc để hợp với thiết kế chung */
+      object-fit: contain; /* Đảm bảo toàn bộ logo được hiển thị, không bị cắt xén */
+    }
+    /* === THAY ĐỔI LOGO KẾT THÚC Ở ĐÂY === */
+
+    .site-title{font-weight:600;font-size:18px;}
+    .main-nav{display:flex;align-items:center;gap:4px;margin-left:16px}
+    .main-nav a{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;color:var(--text-muted);font-weight:500;font-size:14px; transition: all 0.2s ease;}
+    .main-nav a:hover, .main-nav a.active{background:var(--bg-soft);color:var(--text)}
+    .main-nav a.active i {color: var(--accent);} /* Make active icon blue */
+
+
+    .header-right{display:flex;align-items:center;gap:12px}
+    .icon-btn{width:44px;height:44px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-muted);border:1px solid transparent;cursor:pointer; transition: all 0.2s ease; position: relative;}
+    .icon-btn:hover{background:var(--bg-soft);color:var(--text);border-color:var(--border)}
+    a.icon-btn{color:var(--text-muted);}
+    a.icon-btn:hover{color:var(--accent);} /* Make icon blue on hover */
+    
+    .user-display{display:flex;align-items:center;gap:10px;cursor:pointer}
+    .user-display img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--border)}
+    
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:12px;font-weight:600;font-size:15px;border:1px solid var(--border);cursor:pointer; transition: all 0.2s ease;
+    }
+    .btn-primary{background:var(--accent);color:#fff;border-color:transparent} /* Changed from --text to --accent */
+    .btn-primary:hover{transform: translateY(-2px); box-shadow: var(--shadow);}
+    .btn-secondary{background:var(--bg-soft);color:var(--text)}
+    .btn-secondary:hover{border-color: #d1d5db;}
+    
+    /* Layout */
+    main.app-main{max-width:960px;margin:120px auto 80px;padding:0 24px;}
+    .content-section{padding: 60px 0; border-bottom: 1px solid var(--border);}
+    .content-section:last-child{border-bottom:none;}
+    .section-header{text-align:center;max-width:720px;margin:0 auto 48px;}
+    .section-header h2{font-size:32px;margin:0 0 12px;font-weight:700;letter-spacing:-0.5px;}
+    .section-header p{margin:0;color:var(--text-muted);font-size:16px;line-height:1.6;}
+
+    /* === THAY ĐỔI HERO SECTION BẮT ĐẦU TỪ ĐÂY === */
+    .hero {
+      display: flex;
+      flex-direction: column; /* Thay đổi hướng thành cột */
+      align-items: center; /* Căn giữa nội dung */
+      gap: 32px; /* Khoảng cách giữa ảnh và chữ */
+      padding: 60px 0;
+      text-align: center; /* Căn giữa chữ */
+    }
+    .hero-image {
+      width: 100%; /* Chiếm hết chiều ngang */
+      margin-bottom: 16px; /* Khoảng cách với phần chữ bên dưới */
+    }
+    .hero-image img {
+        width: 100%;
+        height: auto; /* Giữ đúng tỷ lệ ảnh */
+        object-fit: cover;
+        border-radius: var(--radius); /* Giữ bo góc cho đẹp */
+    }
+    .hero-content {
+      width: 100%;
+      max-width: 720px; /* Giới hạn chiều rộng của text cho dễ đọc */
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: 48px;
+      margin: 0 0 16px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.2;
+    }
+    .hero p {
+      margin: 0 0 24px;
+      font-size: 18px;
+      color: var(--text-muted);
+      line-height: 1.7;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: center; /* Căn giữa nút bấm */
+      margin-top: 16px;
+    }
+    /* === THAY ĐỔI HERO SECTION KẾT THÚC Ở ĐÂY === */
+
+    /* Features Section */
+    .features-grid{display:grid;grid-template-columns:repeat(2, 1fr); gap:var(--gap);}
+    .feature-card{background:var(--bg-soft); padding: 24px; border-radius:var(--radius); text-align:center; border: 1px solid var(--border);}
+    .feature-icon{font-size:28px; color: var(--accent); margin-bottom: 16px; height: 48px; width: 48px; border-radius: 50%; background: #fff; display:inline-flex; align-items:center; justify-content:center; border: 1px solid var(--border);}
+    .feature-card h3{margin:0 0 8px; font-size:18px; font-weight:600;}
+    .feature-card p{margin:0; color:var(--text-muted); font-size:14px; line-height:1.5;}
+
+    /* Video Section */
+    .video-wrapper{border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow); border: 1px solid var(--border);}
+    .video-placeholder{background: #000; aspect-ratio: 16/9; display:flex; align-items:center; justify-content:center; cursor:pointer;}
+    .video-placeholder i { font-size: 60px; color: rgba(255,255,255,0.8); transition: all 0.2s ease;}
+    .video-placeholder:hover i {transform: scale(1.1); color: #fff;}
+
+    /* NEW BLOG SECTION STYLES */
+    .blog-post {
+        display: flex;
+        align-items: center;
+        gap: 48px;
+        margin-bottom: 60px; /* Add space between the two blog posts */
+    }
+    .blog-post:last-child {
+        margin-bottom: 0;
+    }
+    .blog-content {
+        flex: 1 1 50%;
+        text-align: left;
+    }
+    .blog-image {
+        flex: 1 1 50%;
+    }
+    .blog-image img {
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+    }
+    .blog-content h3 {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0 0 12px;
+    }
+    .blog-content p {
+        color: var(--text-muted);
+        line-height: 1.7;
+        margin: 0 0 24px;
+    }
+    /* END NEW BLOG SECTION STYLES */
+
+
+    /* Pricing Section */
+    .pricing-grid{display:grid;grid-template-columns:repeat(3, 1fr);gap:var(--gap);align-items:start;}
+    .pricing-card{background:#fff; border-radius:var(--radius); padding:28px; border:1px solid var(--border); display:flex; flex-direction:column; gap:18px; transition: all 0.2s ease;}
+    .pricing-card:hover{transform:translateY(-5px); box-shadow:var(--shadow);}
+    .pricing-card.highlight{border-color:var(--accent); border-width:2px; padding: 27px; background: #F9FAFB;}
+    .pricing-card h3{margin:0; font-size:20px; font-weight:600;}
+    .price{font-size:36px;font-weight:700;}
+    .price .term{font-size:14px; font-weight:500; color:var(--text-muted);}
+    .pricing-card .description{font-size:14px; color:var(--text-muted); min-height:60px;}
+    .features-list{display:flex; flex-direction:column; gap:12px; padding:0; list-style:none; margin:0;}
+    .features-list li{display:flex; align-items:center; gap:10px; font-size:14px;}
+    .features-list i{color: #28a745;}
+
+    /* Testimonials Section */
+    .testimonials-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:var(--gap);}
+    .testimonial-card{background:var(--bg-soft); padding:24px; border-radius:var(--radius); border: 1px solid var(--border);}
+    .testimonial-quote{font-style:italic; color: var(--text-muted); border-left: 3px solid var(--border-dashed); padding-left:16px; margin:0 0 16px;}
+    .user-profile{display:flex; align-items:center; gap:12px;}
+    .user-profile img{width:44px; height:44px; border-radius:50%; object-fit:cover;}
+    .user-info .name{font-weight:600; font-size:14px;}
+    .user-info .title{font-size:13px; color:var(--text-muted);}
+
+    /* Footer */
+    footer.app-footer{max-width:960px;margin:0 auto 40px;padding:24px;color:var(--text-muted);font-size:14px;display:flex;justify-content:space-between;gap:16px; border-top: 1px solid var(--border); text-align:center;}
+    footer a{color:var(--text-muted); font-weight:500;} footer a:hover{color:var(--text);}
+    
+    /* NEW: Dropdown Menu styles */
+    .mobile-menu-dropdown {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 60px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 8px;
+      box-shadow: var(--shadow);
+      z-index: 1300;
+      width: 200px;
+    }
+    .mobile-menu-dropdown a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .mobile-menu-dropdown a:hover {
+      background-color: var(--bg-soft);
+      color: var(--text);
+    }
+    .mobile-menu-btn { display: none; } /* Hide by default */
+
+    /* Payment Modal Styles */
+    .payment-overlay {
+      display: none; align-items: center; justify-content: center;
+      position: fixed; inset: 0;
+      background: rgba(10,10,10,0.4);
+      z-index: 2000;
+    }
+    .payment-modal {
+      background: var(--bg); border-radius: 12px; padding: 28px;
+      max-width: 480px; width: 94%;
+      border: 1px solid var(--border); box-shadow: var(--shadow);
+      display: flex; flex-direction: column; gap: 16px;
+    }
+    .payment-modal h3 { margin: 0 0 4px; font-size: 20px; }
+    .payment-info-group { display: flex; flex-direction: column; gap: 4px; }
+    .payment-info-group label { font-size: 13px; font-weight: 500; color: var(--text-muted); }
+    .payment-info-group p {
+      font-size: 15px; font-weight: 600; padding: 12px;
+      border-radius: 8px; background: var(--bg-soft);
+      border: 1px solid var(--border); margin: 0;
+    }
+    .payment-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+
+    /* Responsive */
+    @media (max-width: 900px){
+      .features-grid, .pricing-grid, .testimonials-grid{grid-template-columns:1fr; }
+      main.app-main{margin-top: 100px;}
+      
+      /* === THAY ĐỔI RESPONSIVE CHO HERO === */
+      /* No changes needed here anymore, as the column layout works for all screen sizes */
+       /* === KẾT THÚC THAY ĐỔI === */
+
+      /* NEW: BLOG RESPONSIVE */
+      .blog-post {
+          flex-direction: column;
+          text-align: center;
+      }
+      .blog-post:nth-child(2) {
+          flex-direction: column-reverse;
+      }
+      .blog-content {
+          margin-bottom: 24px;
+      }
+      /* END BLOG RESPONSIVE */
+
+      .hero h1{font-size:36px;}
+      .hero p{font-size:16px;}
+      .section-header h2{font-size:28px;}
+      .hero-actions{ flex-direction: column; align-items: stretch; }
+      .hero-actions .btn { width: 100%; }
+    }
+
+    @media (max-width: 820px){
+      /* Hide original nav links */
+      .main-nav a[href="./chatai.html"],
+      .main-nav a[href="./roomchat.html"],
+      .main-nav a[href="#pricing"] {
+        display: none;
+      }
+      .main-nav span { display: none; }
+      .main-nav a { padding: 8px; gap: 0; }
+      .site-title { display: none; }
+      .main-nav { margin-left: 8px; gap: 8px; }
+      .header-right { gap: 8px; }
+      header.app-header{ padding: 0 16px; }
+
+      /* Show mobile hamburger menu button */
+      .mobile-menu-btn { display: inline-flex; }
+    }
+    .muted{color:var(--text-muted);font-size:13px}
+    .tiny{font-size:12px;color:var(--text-muted-2)}
+  </style>
+</head>
+<body style="display: none;">
+
+  <header class="app-header">
+    <div style="display:flex;align-items:center;">
+      <div class="brand">
+        <img src="fde8b58d-513b-45b3-9a8b-8a81e7535bec.jpg" alt="WordWhizzy Logo" class="logo">
+      </div>
+      <nav class="main-nav" aria-label="Chính">
+        <a href="./index.html" title="Trang chủ" class="active"><i class="fa-solid fa-house"></i> <span>Trang chủ</span></a>
+        <a href="./tuhoc.html" title="Thư viện"><i class="fa-solid fa-book-open"></i> <span>Thư viện</span></a>
+        <a href="./main/vocabulary.html" title="Tạo Flashcard"><i class="fa-solid fa-layer-group"></i> <span>Flashcard</span></a>
+        <a href="./chatai.html" title="Chat AI"><i class="fa-solid fa-comments"></i> <span>Chat AI</span></a>
+        <a href="./roomchat.html" title="Room Chat"><i class="fa-solid fa-users"></i> <span>Room Chat</span></a>
+        <a href="#pricing" title="Gói học"><i class="fa-solid fa-gem"></i> <span>Gói học</span></a>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <a href="thongbao.html" class="icon-btn" id="btn-noti" title="Thông báo"><i class="fa-regular fa-bell"></i></a>
+      <div class="icon-btn" id="btn-help" title="Trợ giúp"><i class="fa-regular fa-circle-question"></i></div>
+      
+      <div class="icon-btn mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fa-solid fa-ellipsis-vertical"></i>
+        <div class="mobile-menu-dropdown" id="mobileMenuDropdown">
+          <a href="./chatai.html" title="Chat AI"><i class="fa-solid fa-comments"></i> <span>Chat AI</span></a>
+          <a href="./roomchat.html" title="Room Chat"><i class="fa-solid fa-users"></i> <span>Room Chat</span></a>
+          <a href="#pricing" title="Gói học"><i class="fa-solid fa-gem"></i> <span>Gói học</span></a>
+        </div>
+      </div>
+
+      <div class="user-display" id="headerControls"></div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    
+    <section class="hero">
+        <div class="hero-image">
+            <img src="a1767b23-50b0-4362-a79e-322613dae93b.jpg" alt="Học từ vựng thông minh với WordWhizzy">
+        </div>
+        <div class="hero-content">
+            <h1>Học Từ Vựng Thông Minh, Giao Diện Tinh Tế</h1>
+            <p>WordWhizzy không chỉ là một công cụ học từ, mà là một trải nghiệm. Chúng tôi kết hợp phương pháp lặp lại ngắt quãng với AI để giúp bạn chinh phục vốn từ một cách hiệu quả và thú vị nhất.</p>
+            <div class="hero-actions">
+              <a href="./tuhoc.html" class="btn btn-primary"><i class="fa-solid fa-play"></i> Bắt đầu học ngay</a>
+              <a href="#features" class="btn btn-secondary"><i class="fa-solid fa-wand-magic-sparkles"></i> Khám phá tính năng</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="content-section">
+        <div class="section-header">
+            <h2>Tại Sao Chọn WordWhizzy?</h2>
+            <p>Chúng tôi tập trung vào những gì thực sự quan trọng để giúp bạn tiến bộ mỗi ngày.</p>
+        </div>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-brain"></i></div>
+                <h3>Học Tập Thông Minh</h3>
+                <p>AI cá nhân hóa lộ trình, giúp bạn ôn tập đúng từ, đúng thời điểm để ghi nhớ sâu.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-crosshairs"></i></div>
+                <h3>Giao Diện Tập Trung</h3>
+                <p>Thiết kế tối giản, không gây xao lãng, giúp bạn hoàn toàn tập trung vào việc học.</p>
+            </div>
+             <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-book"></i></div>
+                <h3>Thư Viện Phong Phú</h3>
+                <p>Truy cập hàng ngàn bộ từ vựng được biên soạn theo chủ đề, cấp độ và các kỳ thi phổ biến.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fa-solid fa-puzzle-piece"></i></div>
+                <h3>Tương Tác Thú Vị</h3>
+                <p>Các trò chơi và thử thách tương tác giúp việc học từ vựng không còn nhàm chán.</p>
+            </div>
+        </div>
+    </section>
+    
+    <section id="video" class="content-section">
+      <div class="section-header">
+          <h2>Xem WordWhizzy Hoạt Động</h2>
+          <p>Chỉ 2 phút để hiểu tại sao học viên của chúng tôi yêu thích phương pháp học mới này.</p>
+      </div>
+      <div class="video-wrapper">
+          <video style="width: 100%; border-radius: var(--radius);" controls autoplay muted loop>
+              <source src="6891702987163.mp4" type="video/mp4">
+              Trình duyệt của bạn không hỗ trợ thẻ video.
+          </video>
+      </div>
+    </section>
+
+    <section id="blog" class="content-section">
+        <div class="section-header">
+            <h2>Khám Phá Các Tính Năng Nổi Bật</h2>
+            <p>Đi sâu vào các công cụ mạnh mẽ giúp WordWhizzy trở nên khác biệt.</p>
+        </div>
+        
+        <div class="blog-post">
+            <div class="blog-content">
+                <h3>Trò Chuyện Cùng AI Tutor</h3>
+                <p>Không chỉ học từ, bạn còn có thể luyện tập giao tiếp thực tế với AI Tutor. AI sẽ đóng vai một người bạn, cùng bạn thảo luận về các chủ đề bạn quan tâm, sửa lỗi và gợi ý cách diễn đạt tự nhiên hơn. Đây là cách tuyệt vời để xây dựng sự tự tin trước khi bước vào các cuộc hội thoại thực tế.</p>
+                <a href="./chatai.html" class="btn btn-primary"><i class="fa-solid fa-comments"></i> Thử ngay Chat AI</a>
+            </div>
+            <div class="blog-image">
+                <img src="ai.jpg" alt="Trò chuyện với AI Tutor">
+            </div>
+        </div>
+
+        <div class="blog-post">
+            <div class="blog-image">
+                <img src="fl.jpg" alt="Tạo Flashcard thông minh">
+            </div>
+            <div class="blog-content">
+                <h3>Tạo Flashcard Thông Minh Trong Nháy Mắt</h3>
+                <p>Quên đi việc tạo flashcard thủ công tốn thời gian. Với WordWhizzy, bạn chỉ cần nhập một danh sách từ, một đoạn văn, hoặc thậm chí chụp ảnh một trang sách. AI sẽ tự động phân tích, tạo ra các flashcard hoàn chỉnh với định nghĩa, ví dụ, phát âm và hình ảnh minh họa. Học từ vựng chưa bao giờ dễ dàng và nhanh chóng đến thế.</p>
+                <a href="./main/vocabulary.html" class="btn btn-secondary"><i class="fa-solid fa-layer-group"></i> Tạo bộ Flashcard</a>
+            </div>
+        </div>
+    </section>
+    <section id="pricing" class="content-section">
+      <div class="section-header">
+          <h2>Đầu Tư Cho Tương Lai Của Bạn</h2>
+          <p>Chọn gói học phù hợp nhất với mục tiêu và ngân sách của bạn. Bắt đầu miễn phí ngay hôm nay.</p>
+      </div>
+      <div class="pricing-grid">
+          <div class="pricing-card" data-plan-name="Cơ bản">
+              <h3>Cơ bản</h3>
+              <div class="price">0đ <span class="term">/ tháng</span></div>
+              <p class="description">Bắt đầu hành trình học từ vựng miễn phí với các tính năng thiết yếu.</p>
+              <ul class="features-list">
+                  <li><i class="fa-solid fa-check"></i> Truy cập hạn chế kho từ vựng</li>
+                  <li><i class="fa-solid fa-check"></i> Bài học cơ bản</li>
+                  <li><i class="fa-solid fa-check"></i> 20 phút chat với AI mỗi ngày</li>
+                  <li><i class="fa-solid fa-check"></i> Hỗ trợ tiêu chuẩn</li>
+              </ul>
+              <button class="btn btn-secondary" style="width:100%; margin-top:auto;">Bắt đầu miễn phí</button>
+          </div>
+          <div class="pricing-card highlight" data-plan-name="Nâng cao">
+              <h3>Nâng cao</h3>
+              <div class="price">99.000đ <span class="term">/ tháng</span></div>
+              <p class="description">Mở khóa toàn bộ tiềm năng với các tính năng cao cấp và hỗ trợ ưu tiên.</p>
+              <ul class="features-list">
+                  <li><i class="fa-solid fa-check"></i> Truy cập không giới hạn kho từ</li>
+                  <li><i class="fa-solid fa-check"></i> Bài học cá nhân hóa với AI Tutor</li>
+                  <li><i class="fa-solid fa-check"></i> Trò chơi học tập tương tác</li>
+                  <li><i class="fa-solid fa-check"></i> Báo cáo tiến độ chi tiết</li>
+                  <li><i class="fa-solid fa-check"></i> Hỗ trợ ưu tiên 24/7</li>
+              </ul>
+              <button class="btn btn-primary btn-register" style="width:100%; margin-top:auto;">Đăng ký ngay</button>
+          </div>
+          <div class="pricing-card" data-plan-name="Trọn đời">
+              <h3>Trọn đời</h3>
+              <div class="price">1.999.000đ <span class="term">/ 1 lần</span></div>
+              <p class="description">Sở hữu WordWhizzy vĩnh viễn với tất cả các tính năng hiện tại và tương lai.</p>
+              <ul class="features-list">
+                  <li><i class="fa-solid fa-check"></i> Tất cả tính năng Nâng Cao</li>
+                  <li><i class="fa-solid fa-check"></i> Cập nhật tính năng mới trọn đời</li>
+                  <li><i class="fa-solid fa-check"></i> Hỗ trợ VIP 24/7</li>
+                  <li><i class="fa-solid fa-check"></i> Tham gia cộng đồng độc quyền</li>
+              </ul>
+              <button class="btn btn-secondary btn-register" style="width:100%; margin-top:auto;">Mua trọn đời</button>
+          </div>
+      </div>
+    </section>
+
+    <section id="testimonials" class="content-section">
+      <div class="section-header">
+          <h2>Học Viên Nói Gì Về Chúng Tôi?</h2>
+          <p>Sự tiến bộ của bạn là niềm tự hào và là động lực lớn nhất của WordWhizzy.</p>
+      </div>
+      <div class="testimonials-grid">
+          <div class="testimonial-card">
+              <p class="testimonial-quote">"Giao diện quá đẹp và tập trung, mình không bị xao lãng như các app khác. Tính năng ôn tập thông minh thật sự hiệu quả."</p>
+              <div class="user-profile">
+                  <img src="https://i.pravatar.cc/88?u=user1" alt="Avatar">
+                  <div class="user-info">
+                      <div class="name">An Nguyễn</div>
+                      <div class="title">Sinh viên Đại học</div>
+                  </div>
+              </div>
+          </div>
+          <div class="testimonial-card">
+              <p class="testimonial-quote">"Mình đã thử nhiều cách nhưng đây là lần đầu tiên mình duy trì được thói quen học từ mới mỗi ngày. Rất đáng tiền!"</p>
+              <div class="user-profile">
+                  <img src="https://i.pravatar.cc/88?u=user2" alt="Avatar">
+                  <div class="user-info">
+                      <div class="name">Minh Trần</div>
+                      <div class="title">Lập trình viên</div>
+                  </div>
+              </div>
+          </div>
+          <div class="testimonial-card">
+              <p class="testimonial-quote">"Các bộ từ được sắp xếp rất khoa học. Mình đã nâng band IELTS Listening & Reading nhờ vốn từ được cải thiện rõ rệt."</p>
+              <div class="user-profile">
+                  <img src="https://i.pravatar.cc/88?u=user3" alt="Avatar">
+                  <div class="user-info">
+                      <div class="name">Khánh Lê</div>
+                      <div class="title">Học sinh lớp 12</div>
+                  </div>
+              </div>
+          </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <div>© 2025 WordWhizzy — Designed for Clarity & Focus</div>
+    <div>
+        <a href="./support.html">Hỗ trợ</a> · 
+        <a href="https://www.facebook.com/WordWhizzy" target="_blank">Facebook</a> · 
+        <a href="./danhgia.html">Đánh giá</a>
+    </div>
+  </footer>
+
+  <div class="payment-overlay" id="paymentModal">
+    <div class="payment-modal">
+      <div style="display:flex; justify-content: space-between; align-items: center;">
+          <h3>Thông tin thanh toán</h3>
+          <i id="closePaymentModal" class="fa-solid fa-times" style="cursor:pointer; font-size: 20px;"></i>
+      </div>
+      <div class="payment-info-group">
+        <label>Tên khách hàng</label>
+        <p id="paymentCustomerName">Đang tải...</p>
+      </div>
+      <div class="payment-info-group">
+        <label>Gói đăng ký</label>
+        <p id="paymentPlanName">Đang tải...</p>
+      </div>
+      <div class="payment-info-group">
+        <label>Nội dung chuyển khoản</label>
+        <p id="paymentTransactionCode">Đang tải...</p>
+      </div>
+      <div class="payment-actions">
+        <button id="copyPaymentInfo" class="btn btn-primary"><i class="fa-regular fa-copy"></i> Sao chép</button>
+        <a href="https://www.facebook.com/WordWhizzy" target="_blank" class="btn btn-secondary"><i class="fa-brands fa-facebook"></i> Facebook</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+  <script type="module">
+// --- Firebase init ---
+const firebaseConfig = {
+  apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg", // Thay bằng API key của bạn
+  authDomain: "wordwhizzy.firebaseapp.com",
+  projectId: "wordwhizzy",
+  storageBucket: "wordwhizzy.appspot.com",
+  messagingSenderId: "179575783469",
+  appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4",
+  measurementId: "G-XPFQ8PCTRE",
+};
+if (!firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+
+// ... (Existing getUserProfile, saveUserProfile, uploadAvatar functions) ...
+async function getUserProfile(uid) {
+  try {
+    const docRef = db.collection("users").doc(uid);
+    const docSnap = await docRef.get();
+    if (docSnap.exists) return docSnap.data();
+    return null;
+  } catch (e) {
+    console.error('getUserProfile error', e);
+    return null;
+  }
+}
+async function saveUserProfile(uid, data) {
+  try {
+    await db.collection("users").doc(uid).set(data, { merge: true });
+  } catch (e) {
+    console.error('saveUserProfile error', e);
+  }
+}
+async function uploadAvatar(file, uid) {
+  const storageRef = storage.ref(`avatars/${uid}/${file.name}`);
+  const snapshot = await storageRef.put(file);
+  const downloadURL = await snapshot.ref.getDownloadURL();
+  return downloadURL;
+}
+const settingsPopupHTML = `
+  <div class="overlay" id="settingsPopupOverlay" style="display:none;align-items:center;justify-content:center;position:fixed;inset:0;background:rgba(10,10,10,0.4);z-index:1000;">
+    <div class="modal" style="background:var(--bg);border-radius:12px;padding:24px;max-width:520px;width:94%;border:1px solid var(--border);box-shadow:var(--shadow)">
+      <h3>Cài đặt tài khoản</h3>
+      <form id="settingsForm" style="margin-top:16px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:16px">
+          <img id="currentAvatar" src="https://via.placeholder.com/100/cccccc/ffffff?text=AV" alt="Avatar" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:1px solid var(--border)">
+          <input type="file" id="avatarUpload" accept="image/*" />
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <label style="font-size:14px;font-weight:500;">Tên hiển thị</label>
+          <input id="displayName" type="text" style="padding:10px;border-radius:8px;border:1px solid var(--border)"/>
+          <label style="font-size:14px;font-weight:500;">Ngày sinh</label>
+          <input id="dob" type="date" style="padding:10px;border-radius:8px;border:1px solid var(--border)"/>
+          <label style="font-size:14px;font-weight:500;">Lớp / Trình độ</label>
+          <input id="classGrade" type="text" placeholder="Ví dụ: Intermediate" style="padding:10px;border-radius:8px;border:1px solid var(--border)"/>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+          <button class="btn btn-secondary" type="button" id="closeSettingsPopup">Đóng</button>
+          <button class="btn btn-primary" type="submit">Lưu thay đổi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+`;
+document.body.insertAdjacentHTML('beforeend', settingsPopupHTML);
+const settingsPopup = document.getElementById("settingsPopupOverlay");
+const closeSettingsPopupBtn = document.getElementById("closeSettingsPopup");
+const settingsForm = document.getElementById("settingsForm");
+const currentAvatar = document.getElementById("currentAvatar");
+const avatarUpload = document.getElementById("avatarUpload");
+const displayNameInput = document.getElementById("displayName");
+const dobInput = document.getElementById("dob");
+const classGradeInput = document.getElementById("classGrade");
+if (closeSettingsPopupBtn) closeSettingsPopupBtn.addEventListener("click", () => { if (settingsPopup) settingsPopup.style.display = "none"; });
+async function showSettingsPopup(user) {
+  if (settingsPopup) settingsPopup.style.display = "flex";
+  const userProfile = await getUserProfile(user.uid);
+  if (userProfile) {
+    currentAvatar.src = userProfile.avatarURL || user.photoURL || "https://via.placeholder.com/100/cccccc/ffffff?text=AV";
+    displayNameInput.value = userProfile.displayName || user.displayName || "";
+    dobInput.value = userProfile.dob || "";
+    classGradeInput.value = userProfile.classGrade || "";
+  } else {
+    currentAvatar.src = user.photoURL || "https://via.placeholder.com/100/cccccc/ffffff?text=AV";
+    displayNameInput.value = user.displayName || "";
+    dobInput.value = "";
+    classGradeInput.value = "";
+  }
+}
+if (settingsForm) settingsForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const user = auth.currentUser;
+  if (!user) { alert("Bạn cần đăng nhập để cập nhật thông tin."); return; }
+  const newDisplayName = displayNameInput.value;
+  const newDob = dobInput.value;
+  const newClassGrade = classGradeInput.value;
+  const avatarFile = avatarUpload.files[0];
+  let newAvatarURL = currentAvatar.src;
+  try {
+    if (avatarFile) {
+      newAvatarURL = await uploadAvatar(avatarFile, user.uid);
+    }
+    await user.updateProfile({ displayName: newDisplayName, photoURL: newAvatarURL });
+    await saveUserProfile(user.uid, { displayName: newDisplayName, avatarURL: newAvatarURL, dob: newDob, classGrade: newClassGrade, lastUpdated: firebase.firestore.FieldValue.serverTimestamp() });
+    alert("Cập nhật thông tin thành công!");
+    if (settingsPopup) settingsPopup.style.display = "none";
+    window.location.reload();
+  } catch (err) {
+    console.error(err);
+    alert("Lỗi khi cập nhật: " + err.message);
+  }
+});
+
+// --- Auth state handling ---
+auth.onAuthStateChanged(async (user) => {
+  if (user) {
+    document.body.style.display = "block";
+    const headerControls = document.getElementById("headerControls");
+    headerControls.innerHTML = ""; 
+
+    let userProfile = await getUserProfile(user.uid);
+    let photoURL = (userProfile && userProfile.avatarURL) ? userProfile.avatarURL : (user.photoURL || `https://ui-avatars.com/api/?name=${user.displayName || 'User'}&background=random`);
+
+    const userDisplay = document.createElement("div");
+    userDisplay.className = "user-display";
+    userDisplay.innerHTML = `<img src="${photoURL}" alt="Avatar" id="userAvatar"><div id="userDropdown" style="display:none;position:absolute;right:22px;top:74px;background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:8px;box-shadow:var(--shadow); z-index:1300; width: 180px;"></div>`;
+
+    headerControls.appendChild(userDisplay);
+
+    const userDropdown = document.getElementById('userDropdown');
+    if (userDropdown) {
+      userDropdown.innerHTML = `
+        <div style="padding: 8px 12px; border-bottom: 1px solid var(--border); margin-bottom: 8px;">
+            <div style="font-weight:600;font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${user.displayName || 'Người dùng'}</div>
+            <div class="tiny muted" style="font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${user.email}</div>
+        </div>
+        <a href="#" id="settingsBtn" style="display:flex; align-items:center; gap:8px; padding:8px 12px;border-radius:8px;color:var(--text-muted); font-size:14px; font-weight:500;"><i class="fa-solid fa-gear" style="width:16px;"></i>Cài đặt</a>
+        <a href="#" id="logoutBtn" style="display:flex; align-items:center; gap:8px; padding:8px 12px;border-radius:8px;color:var(--text-muted); font-size:14px; font-weight:500;"><i class="fa-solid fa-arrow-right-from-bracket" style="width:16px;"></i>Đăng xuất</a>
+      `;
+      userDropdown.querySelectorAll('a').forEach(link => {
+        link.onmouseover = () => { link.style.backgroundColor = 'var(--bg-soft)'; link.style.color='var(--accent)'};
+        link.onmouseout = () => { link.style.backgroundColor = 'transparent'; link.style.color='var(--text-muted)'};
+      });
+    }
+
+    userDisplay.addEventListener('click', () => {
+      if (userDropdown) userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', (ev) => {
+      if (!ev.target.closest('.user-display') && !ev.target.closest('.mobile-menu-btn')) { // Also check for mobile menu
+        if (userDropdown) userDropdown.style.display = 'none';
+        if (mobileMenuDropdown) mobileMenuDropdown.style.display = 'none';
+      }
+    });
+
+    const logoutBtn = document.getElementById('logoutBtn');
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (logoutBtn) logoutBtn.addEventListener('click', async (ev) => {
+      ev.preventDefault();
+      await auth.signOut();
+      window.location.href = 'login.html';
+    });
+    if (settingsBtn) settingsBtn.addEventListener('click', (ev) => {
+      ev.preventDefault();
+      if (userDropdown) userDropdown.style.display = 'none';
+      showSettingsPopup(user);
+    });
+
+  } else {
+    window.location.href = 'login.html';
+  }
+});
+
+// --- NEW: Mobile Hamburger Menu Logic ---
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileMenuDropdown = document.getElementById('mobileMenuDropdown');
+if(mobileMenuBtn) {
+  mobileMenuBtn.addEventListener('click', (e) => {
+    e.stopPropagation(); // Prevent the document click listener from firing immediately
+    mobileMenuDropdown.style.display = mobileMenuDropdown.style.display === 'block' ? 'none' : 'block';
+  });
+}
+
+// --- NEW: Payment Modal Logic ---
+const paymentModal = document.getElementById('paymentModal');
+const closePaymentModalBtn = document.getElementById('closePaymentModal');
+const registerBtns = document.querySelectorAll('.btn-register');
+const copyPaymentInfoBtn = document.getElementById('copyPaymentInfo');
+
+registerBtns.forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    e.preventDefault();
+    const user = auth.currentUser;
+    if (!user) {
+      alert("Bạn cần đăng nhập để đăng ký gói học.");
+      return;
+    }
+    
+    const card = btn.closest('.pricing-card');
+    const planName = card.dataset.planName;
+    const customerName = user.displayName || 'Chưa có tên';
+    // Generate a unique transaction code
+    const transactionCode = `WW${user.uid.substring(0, 4).toUpperCase()}${planName.substring(0,3).toUpperCase()}${Date.now().toString().slice(-6)}`;
+
+    document.getElementById('paymentCustomerName').textContent = customerName;
+    document.getElementById('paymentPlanName').textContent = planName;
+    document.getElementById('paymentTransactionCode').textContent = transactionCode;
+
+    paymentModal.style.display = 'flex';
+  });
+});
+
+if(closePaymentModalBtn) {
+  closePaymentModalBtn.addEventListener('click', () => {
+    paymentModal.style.display = 'none';
+  });
+}
+
+if(copyPaymentInfoBtn) {
+    copyPaymentInfoBtn.addEventListener('click', () => {
+        const customerName = document.getElementById('paymentCustomerName').textContent;
+        const planName = document.getElementById('paymentPlanName').textContent;
+        const transactionCode = document.getElementById('paymentTransactionCode').textContent;
+        const textToCopy = `Tên khách hàng: ${customerName}\nGói đăng ký: ${planName}\nNội dung chuyển khoản: ${transactionCode}`;
+
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            copyPaymentInfoBtn.innerHTML = '<i class="fa-solid fa-check"></i> Đã sao chép!';
+            setTimeout(() => {
+                copyPaymentInfoBtn.innerHTML = '<i class="fa-regular fa-copy"></i> Sao chép';
+            }, 2000);
+        }).catch(err => {
+            alert('Không thể sao chép. Vui lòng thử lại.');
+            console.error('Copy failed', err);
+        });
+    });
+}
+
+
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+        e.preventDefault();
+        // Close mobile menu on click if open
+        if(mobileMenuDropdown && mobileMenuDropdown.style.display === 'block') {
+          mobileMenuDropdown.style.display = 'none';
+        }
+        document.querySelector(this.getAttribute('href')).scrollIntoView({
+            behavior: 'smooth'
+        });
+    });
+});
+  </script>
+</body>
+</html>

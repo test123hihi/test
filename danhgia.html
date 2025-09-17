@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WordWhizzy - Đánh giá</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --primary-color: #60a5fa;
+        --secondary-color: #2563eb;
+        --background: #f0f4f8;
+        --card-bg: #ffffff;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --shadow: 0 6px 25px rgba(0, 0, 0, 0.06);
+        --glow: 0 0 20px rgba(37, 99, 235, 0.5);
+        --highlight-color: #f59e0b;
+        --accent: #22c55e;
+        --border-color: #e2e8f0;
+        --header-height: 60px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        background: var(--background);
+        color: var(--text-primary);
+        line-height: 1.6;
+        min-height: 100vh;
+        padding-top: var(--header-height);
+        padding-bottom: 100px;
+      }
+
+      /* Header styles */
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: var(--header-height);
+        background: var(--card-bg);
+        box-shadow: var(--shadow);
+        z-index: 1200;
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .header .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .header .logo img {
+        width: 55px;
+        flex-shrink: 0;
+      }
+
+      .header .logo-text {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+
+      .header-nav {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .header-nav a,
+      .header-nav .header-cta {
+        text-decoration: none;
+        color: var(--text-primary);
+        font-weight: 400;
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 8px;
+        transition: background 0.3s, color 0.3s;
+      }
+
+      .header-nav a i,
+      .header-nav .header-cta i {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+        width: 20px;
+        text-align: center;
+      }
+
+      .header-nav a:hover,
+      .header-nav .header-cta:hover {
+        background: var(--primary-color);
+        color: var(--card-bg);
+      }
+
+      .header-nav a:hover i,
+      .header-nav .header-cta:hover i {
+        color: var(--card-bg);
+      }
+      
+      .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+      
+      .auth-icon-btn {
+          display: none;
+      }
+
+      /* Auth buttons */
+      .auth-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.4rem 1rem;
+        text-decoration: none;
+        font-family: "Poppins", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 20px;
+        transition: background 0.2s ease, transform 0.2s ease,
+          box-shadow 0.2s ease;
+        height: 32px;
+        min-width: 80px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .signin-btn {
+        background: transparent;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+      }
+
+      .signin-btn:hover,
+      .signin-btn:active {
+        background: var(--primary-color);
+        color: var(--card-bg);
+        border-color: var(--primary-color);
+        transform: scale(1.05);
+        box-shadow: var(--glow);
+      }
+
+      .signup-btn {
+        background: var(--primary-color);
+        color: var(--card-bg);
+      }
+
+      .signup-btn:hover,
+      .signup-btn:active {
+        background: var(--secondary-color);
+        transform: scale(1.05);
+        box-shadow: var(--glow);
+      }
+      
+      /* Responsive header for mobile */
+      @media (max-width: 768px) {
+        .header {
+          padding: 0 0.5rem; 
+        }
+        
+        .header .logo {
+          display: none; /* Hide logo on mobile */
+        }
+
+        .header-nav {
+          flex-grow: 1; /* Make nav take up available space */
+          display: flex;
+          justify-content: space-around; /* Spread icons evenly */
+          gap: 0;
+        }
+
+        .header-nav a {
+          padding: 0.5rem;
+          font-size: 1.3rem; /* Make icons slightly larger */
+        }
+
+        .header-nav a span {
+          display: none; /* Hide text next to icons */
+        }
+        
+        .header-nav a i {
+          width: auto;
+        }
+        
+        .auth-btn {
+          display: none;
+        }
+
+        .auth-icon-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.6rem; /* Control icon size */
+          color: var(--primary-color);
+          text-decoration: none;
+          padding: 0.5rem;
+          transition: color 0.3s;
+        }
+        
+        .auth-icon-btn:hover {
+          color: var(--secondary-color);
+        }
+
+        .header-controls {
+            gap: 0;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header-nav a {
+          padding: 0.5rem 0.4rem; 
+          font-size: 1.2rem; /* Slightly smaller icons */
+        }
+        
+        .auth-icon-btn {
+          font-size: 1.5rem;
+        }
+      }
+      
+      /* Main content styles */
+      .section {
+        max-width: 1000px;
+        margin: 4rem auto;
+        padding: 2rem 1rem;
+      }
+
+      .section h1 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        animation: fadeInUp 0.5s ease-out;
+      }
+
+      .section p.subtitle {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        margin-bottom: 2rem;
+        text-align: center;
+        animation: fadeInUp 0.5s ease-out 0.2s;
+      }
+
+      .review-form {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        margin-bottom: 3rem;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        box-shadow: var(--shadow);
+        animation: fadeInUp 0.5s ease-out 0.3s;
+      }
+
+      .form-group {
+        margin-bottom: 1rem;
+      }
+
+      .form-group label {
+        display: block;
+        font-weight: 500;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 0.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 5px;
+        font-size: 1rem;
+        transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary-color);
+        box-shadow: 0 0 5px rgba(96, 165, 250, 0.3);
+      }
+
+      .rating-group {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 1rem;
+      }
+
+      .rating-group input {
+        display: none;
+      }
+
+      .rating-group label {
+        font-size: 1.5rem;
+        color: #ccc;
+        cursor: pointer;
+        transition: color 0.3s ease;
+      }
+
+      .rating-group input:checked ~ label,
+      .rating-group label:hover,
+      .rating-group label:hover ~ label {
+        color: var(--highlight-color);
+      }
+
+      .btn {
+        padding: 0.5rem 1.5rem;
+        border: none;
+        border-radius: 5px;
+        font-weight: 500;
+        cursor: pointer;
+        background: var(--accent);
+        color: white;
+        font-size: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: background 0.3s ease, transform 0.2s ease;
+      }
+
+      .btn:hover {
+        background: var(--secondary-color);
+        transform: translateY(-2px);
+      }
+
+      .review-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+      }
+
+      .review-card {
+        background: var(--card-bg);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow);
+        transition: transform 0.3s ease;
+        opacity: 0;
+        animation: fadeIn 0.5s ease-out forwards;
+      }
+
+      .review-card:nth-child(1) {
+        animation-delay: 0.4s;
+      }
+      .review-card:nth-child(2) {
+        animation-delay: 0.5s;
+      }
+      .review-card:nth-child(3) {
+        animation-delay: 0.6s;
+      }
+      .review-card:nth-child(4) {
+        animation-delay: 0.7s;
+      }
+
+      .review-card:hover {
+        transform: translateY(-5px);
+      }
+
+      .review-card .reviewer {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+      }
+
+      .review-card .rating {
+        color: var(--highlight-color);
+        margin-bottom: 0.5rem;
+      }
+
+      .review-card .rating i {
+        font-size: 1rem;
+      }
+
+      .review-card .content {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        margin-bottom: 0.5rem;
+      }
+
+      .review-card .date {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        font-style: italic;
+      }
+
+      /* Footer styles */
+      .footer {
+        background: var(--card-bg);
+        padding: 3rem 1rem;
+        border-top: 1px solid var(--border-color);
+      }
+
+      .footer-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+      }
+
+      .footer h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-bottom: 0.8rem;
+      }
+
+      .footer ul {
+        list-style: none;
+      }
+
+      .footer ul li {
+        margin-bottom: 0.6rem;
+      }
+
+      .footer ul a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.3s;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .footer ul a:hover {
+        color: var(--primary-color);
+      }
+
+      .footer .social-links i,
+      .footer ul a i {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+      }
+
+      .footer .copyright {
+        text-align: center;
+        margin-top: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .section {
+          margin: 3rem auto;
+          padding: 1.5rem 0.5rem;
+        }
+
+        .section h1 {
+          font-size: 1.8rem;
+        }
+
+        .review-form {
+          padding: 1rem;
+        }
+
+        .review-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header .logo img {
+          width: 45px;
+        }
+
+        .header .logo-text {
+          font-size: 1rem;
+        }
+
+        .section h1 {
+          font-size: 1.5rem;
+        }
+
+        .section p.subtitle {
+          font-size: 0.95rem;
+        }
+
+        .review-card {
+          padding: 1rem;
+        }
+
+        .btn {
+          padding: 0.4rem 1rem;
+          font-size: 0.9rem;
+        }
+
+        .footer-container {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .footer ul a {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo">
+        <a
+          href="./index.html"
+          style="display: flex; align-items: center; text-decoration: none"
+        >
+          <img src="f.png" alt="Smart Lex Logo" />
+          <span class="logo-text">WordWhizzy</span>
+        </a>
+      </div>
+      <nav class="header-nav" id="headerNav">
+        <a href="./index.html"><i class="fas fa-home"></i><span></span></a>
+        <a href="./main/vocabulary.html"
+          ><i class="fas fa-book"></i><span> </span></a
+        >
+        <a href="./tuhoc.html"
+          ><i class="fas fa-route"></i><span> </span></a
+        >
+        <a href="./muahang.html"
+          ><i class="fas fa-shopping-cart"></i><span> </span></a
+        >
+        <a href="./more.html"
+          ><i class="fas fa-ellipsis-h"></i><span></span></a
+        >
+      </nav>
+      <div class="header-controls">
+        <a class="auth-btn signin-btn" href="login.html?mode=signin"
+          >Đăng nhập</a
+        >
+        <a class="auth-btn signup-btn" href="login.html?mode=signup">Đăng ký</a>
+        
+        <a href="login.html?mode=signin" class="auth-icon-btn">
+            <i class="fas fa-user-circle"></i>
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <section class="section">
+        <h1><i class="fas fa-comments"></i> Đánh giá từ người dùng</h1>
+        <p class="subtitle">
+          Chia sẻ ý kiến của bạn về WordWhizzy hoặc đọc những đánh giá từ cộng
+          đồng người học!
+        </p>
+
+        <div class="review-form">
+          <h2 style="font-size: 1.3rem; margin-bottom: 1rem">
+            Gửi đánh giá của bạn
+          </h2>
+          <form id="reviewForm">
+            <div class="form-group">
+              <label for="name">Họ và tên</label>
+              <input
+                type="text"
+                id="name"
+                placeholder="Nhập họ và tên"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                placeholder="Nhập email của bạn"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label>Đánh giá sao</label>
+              <div class="rating-group">
+                <input
+                  type="radio"
+                  name="rating"
+                  id="star5"
+                  value="5"
+                  required
+                />
+                <label for="star5"><i class="fas fa-star"></i></label>
+                <input type="radio" name="rating" id="star4" value="4" />
+                <label for="star4"><i class="fas fa-star"></i></label>
+                <input type="radio" name="rating" id="star3" value="3" />
+                <label for="star3"><i class="fas fa-star"></i></label>
+                <input type="radio" name="rating" id="star2" value="2" />
+                <label for="star2"><i class="fas fa-star"></i></label>
+                <input type="radio" name="rating" id="star1" value="1" />
+                <label for="star1"><i class="fas fa-star"></i></label>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="content">Nội dung đánh giá</label>
+              <textarea
+                id="content"
+                placeholder="Chia sẻ trải nghiệm của bạn với WordWhizzy"
+                required
+              ></textarea>
+            </div>
+            <button type="submit" class="btn">
+              <i class="fas fa-paper-plane"></i> Gửi đánh giá
+            </button>
+          </form>
+        </div>
+
+        <div class="review-grid" id="reviewGrid">
+          <div class="review-card">
+            <div class="reviewer">Nguyễn Minh Anh</div>
+            <div class="rating">
+              <i class="fas fa-star"></i><i class="fas fa-star"></i
+              ><i class="fas fa-star"></i><i class="fas fa-star"></i
+              ><i class="fas fa-star"></i>
+            </div>
+            <div class="content">
+              WordWhizzy thực sự tuyệt vời! Tính năng luyện phát âm giúp tôi tự
+              tin hơn khi nói tiếng Anh. Giao diện rất dễ sử dụng và lộ trình
+              học được cá nhân hóa rất hiệu quả.
+            </div>
+            <div class="date">20/05/2025</div>
+          </div>
+          <div class="review-card">
+            <div class="reviewer">Trần Quốc Hùng</div>
+            <div class="rating">
+              <i class="fas fa-star"></i><i class="fas fa-star"></i
+              ><i class="fas fa-star"></i><i class="fas fa-star"></i
+              ><i class="far fa-star"></i>
+            </div>
+            <div class="content">
+              Tôi thích cách WordWhizzy sử dụng AI để tạo lộ trình học. Tuy
+              nhiên, tôi mong muốn có thêm các mini-game để việc học thú vị hơn.
+            </div>
+            <div class="date">15/05/2025</div>
+          </div>
+          <div class="review-card">
+            <div class="reviewer">Lê Thị Hồng Nhung</div>
+            <div class="rating">
+              <i class="fas fa-star"></i><i class="fas fa-star"></i
+              ><i class="fas fa-star"></i><i class="fas fa-star"></i
+              ><i class="fas fa-star"></i>
+            </div>
+            <div class="content">
+              Ứng dụng rất tiện lợi, đặc biệt là khả năng học mọi lúc mọi nơi.
+              Tính năng kiểm tra đầu vào giúp tôi biết rõ điểm yếu và cải thiện
+              nhanh chóng.
+            </div>
+            <div class="date">10/05/2025</div>
+          </div>
+          <div class="review-card">
+            <div class="reviewer">Phạm Việt Nam</div>
+            <div class="rating">
+              <i class="fas fa-star"></i><i class="fas fa-star"></i
+              ><i class="fas fa-star"></i><i class="far fa-star"></i
+              ><i class="far fa-star"></i>
+            </div>
+            <div class="content">
+              WordWhizzy khá tốt, nhưng tốc độ tải ứng dụng đôi khi chậm trên
+              điện thoại cũ của tôi. Mong đội ngũ cải thiện hiệu suất.
+            </div>
+            <div class="date">05/05/2025</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container">
+        <div>
+          <h3>WordWhizzy</h3>
+          <ul>
+            <li>
+              <a href="./intro.html"
+                ><i class="fas fa-info-circle"></i> Giới thiệu</a
+              >
+            </li>
+            <li>
+              <a href="./danhgia.html"> <i class="fas fa-edit"></i>Đánh giá</a>
+            </li>
+            <li>
+              <a href="./support.html"
+                ><i class="fas fa-question-circle"></i> Hỗ trợ</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3>Thông tin:</h3>
+          <ul>
+            <li>
+              <a href="#!"><i class="fas fa-phone"></i> +84123456789</a>
+            </li>
+            <li>
+              <a href="#!"
+                ><i class="fas fa-envelope"></i> wordwhizzy8888@gmail.com</a
+              >
+            </li>
+            <li>
+              <a href="#!"
+                ><i class="fas fa-map-marker-alt"></i> Xã Trưng Trắc, Huyện Văn
+                Lâm, Tỉnh Hưng Yên</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3>Kết nối</h3>
+          <ul class="social-links">
+            <li>
+              <a href="#!"><i class="fab fa-tiktok"></i> TikTok</a>
+            </li>
+            <li>
+              <a href="#!"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </li>
+            <li>
+              <a href="#!"><i class="fab fa-instagram"></i> Instagram</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">© 2025 WordWhizzy. All rights reserved.</div>
+    </footer>
+
+    <script>
+      // Review form handling
+      function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+      }
+
+      function generateStarRating(count) {
+        let stars = "";
+        for (let i = 0; i < 5; i++) {
+          stars +=
+            i < count
+              ? '<i class="fas fa-star"></i>'
+              : '<i class="far fa-star"></i>';
+        }
+        return stars;
+      }
+
+      function addReviewToGrid(review) {
+        const reviewGrid = document.getElementById("reviewGrid");
+        const reviewCard = document.createElement("div");
+        reviewCard.className = "review-card";
+        reviewCard.innerHTML = `
+        <div class="reviewer">${review.name}</div>
+        <div class="rating">${generateStarRating(review.rating)}</div>
+        <div class="content">${review.content}</div>
+        <div class="date">${review.date}</div>
+      `;
+        reviewGrid.prepend(reviewCard);
+        setTimeout(() => {
+          reviewCard.style.opacity = 1;
+        }, 100);
+      }
+
+      function loadReviews() {
+        const reviews = JSON.parse(localStorage.getItem("reviews") || "[]");
+        reviews.forEach(addReviewToGrid);
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        // No header script needed for the new design
+        loadReviews();
+
+        const reviewForm = document.getElementById("reviewForm");
+        reviewForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+
+          const name = document.getElementById("name").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const rating = document.querySelector(
+            'input[name="rating"]:checked'
+          )?.value;
+          const content = document.getElementById("content").value.trim();
+          const date = new Date().toLocaleDateString("vi-VN");
+
+          if (!name || name.length < 2) {
+            alert("Vui lòng nhập họ và tên hợp lệ (tối thiểu 2 ký tự).");
+            return;
+          }
+
+          if (!validateEmail(email)) {
+            alert("Vui lòng nhập email hợp lệ.");
+            return;
+          }
+
+          if (!rating) {
+            alert("Vui lòng chọn số sao đánh giá.");
+            return;
+          }
+
+          if (!content || content.length < 10) {
+            alert("Nội dung đánh giá phải tối thiểu 10 ký tự.");
+            return;
+          }
+
+          const review = {
+            name,
+            email,
+            rating: parseInt(rating),
+            content,
+            date,
+          };
+          const reviews = JSON.parse(localStorage.getItem("reviews") || "[]");
+          reviews.push(review);
+          localStorage.setItem("reviews", JSON.stringify(reviews));
+
+          addReviewToGrid(review);
+          alert(
+            "Cảm ơn bạn đã gửi đánh giá! Chúng tôi sẽ xem xét và trả lời sớm."
+          );
+          reviewForm.reset();
+        });
+      });
+    </script>
+  </body>
+</html>

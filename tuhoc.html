@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Thư Viện – WordWhizzy</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+  <style>
+  /* Chỉ áp dụng cho thiết bị cảm ứng để không ảnh hưởng keyboard users */
+@media (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent; /* iOS, Chrome mobile */
+    -webkit-touch-callout: none;              /* tắt menu giữ chạm (iOS) nếu cần */
+  }
+}
+
+    :root{
+      --bg: #ffffff;
+      --bg-soft: #f9f9f9;
+      --text: #1f2937; /* Dark Gray-Blue */
+      --text-muted: #6B7280; /* Cool Gray */
+      --border: #e8e8e8;
+      --border-dashed: #dcdcdc;
+      --radius: 14px;
+      --shadow: 0 8px 24px rgba(59, 130, 246, 0.1); /* Blueish Shadow */
+      --glass: rgba(255,255,255,0.8);
+      --accent: #3B82F6; /* Primary Blue */
+      --gap: 24px;
+      font-synthesis: none;
+    }
+
+    /* Reset & base */
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+    a{text-decoration:none;color:inherit}
+    img, video{max-width:100%;display:block}
+
+    /* Header */
+    header.app-header{
+      position:fixed;left:0;right:0;top:0;height:72px;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:0 24px;
+      background:var(--glass);
+      border-bottom:1px solid var(--border);
+      z-index:1200;
+      backdrop-filter: blur(8px);
+      
+    }
+    .brand{display:flex;align-items:center;gap:12px;}
+    
+    .logo {
+      width: auto;
+      max-height: 48px; /* Giữ nguyên chiều cao để phù hợp với header */
+      border-radius: 8px; /* Có thể điều chỉnh hoặc xóa nếu logo không cần bo góc */
+      object-fit: contain;
+      
+    }
+
+    .site-title{font-weight:600;font-size:18px;}
+    .main-nav{display:flex;align-items:center;gap:4px;margin-left:16px}
+    .main-nav a{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;color:var(--text-muted);font-weight:500;font-size:14px;transition: all 0.2s ease;}
+    .main-nav a:hover, .main-nav a.active{background:var(--bg-soft);color:var(--text)}
+    .main-nav a.active i {color: var(--accent);}
+
+    .header-right{display:flex;align-items:center;gap:12px}
+    .icon-btn{width:44px;height:44px;border-radius:10px;display:inline-flex;align-items:center;justify-content:center;color:var(--text-muted);border:1px solid transparent;cursor:pointer;transition: all 0.2s ease; position: relative;}
+    .icon-btn:hover{background:var(--bg-soft);color:var(--text);border-color:var(--border)}
+    a.icon-btn{color:var(--text-muted);}
+    a.icon-btn:hover{color:var(--accent);}
+    
+    .user-display{display:flex;align-items:center;gap:10px;cursor:pointer}
+    .user-display img{width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid var(--border)}
+    
+    /* Layout */
+    main.app-main{max-width:960px;margin:120px auto 80px;padding:0 24px;}
+    .content-section{padding: 60px 0;border-bottom: 1px solid var(--border);}
+    .content-section:last-child{border-bottom:none;}
+    .section-header{text-align:center;max-width:720px;margin:0 auto 48px;}
+    .section-header h2{font-size:32px;margin:0 0 12px;font-weight:700;letter-spacing:-0.5px;}
+    .section-header p{margin:0;color:var(--text-muted);font-size:16px;line-height:1.6;}
+
+    /* Styles cho Thư Viện */
+    .roadmap-container {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 2rem;
+        flex-wrap: wrap;
+        margin-bottom: 48px;
+    }
+    .roadmap-step { 
+        text-align: center; 
+        max-width: 200px; 
+        flex: 1;
+    }
+    .roadmap-icon {
+        width: 64px; height: 64px; border-radius: 50%;
+        background: var(--bg-soft); border: 1px solid var(--border);
+        display: inline-flex; align-items: center; justify-content: center;
+        margin-bottom: 16px; color: var(--accent);
+        transition: all 0.2s ease;
+    }
+    .roadmap-icon i { font-size: 28px; }
+    .roadmap-step:hover .roadmap-icon {
+        transform: scale(1.1);
+        box-shadow: var(--shadow);
+    }
+    .roadmap-step h3 { font-size: 18px; font-weight: 600; margin: 0 0 8px; }
+    .roadmap-step p { font-size: 14px; color: var(--text-muted); line-height: 1.6; }
+    .roadmap-arrow { font-size: 28px; color: var(--border-dashed); margin-top: 28px;}
+
+    .vocab-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--gap);
+    }
+    .vocab-card {
+        background: var(--bg-soft); padding: 24px; border-radius: var(--radius);
+        border: 1px solid var(--border); text-align: center;
+        transition: all 0.2s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    .vocab-card:hover { 
+        transform: translateY(-5px); 
+        box-shadow: var(--shadow); 
+        border-color: var(--accent); 
+    }
+    .topic-icon { 
+        font-size: 28px; color: var(--accent); margin: 0 auto 16px; 
+        height: 56px; width: 56px; border-radius: 50%; 
+        background: #fff; display:inline-flex; align-items:center; 
+        justify-content:center; border: 1px solid var(--border);
+    }
+    .vocab-card h3 { margin: 0 0 8px; font-size: 18px; font-weight: 600; }
+    .vocab-card p { margin: 0 0 20px; color: var(--text-muted); font-size: 14px; line-height: 1.5; flex-grow: 1; }
+    .stats { 
+        font-size: 13px; color: var(--text-muted); 
+        display: flex; justify-content: center; gap: 16px; 
+        border-top: 1px solid var(--border); padding-top: 16px; 
+        margin-top: auto;
+    }
+    .stats span { display: flex; align-items: center; gap: 6px; }
+    .stats i { color: var(--accent); opacity: 0.7; }
+    
+    /* Dropdown Menu styles */
+    .mobile-menu-dropdown {
+      display: none; position: absolute;
+      right: 0; top: 60px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 10px; padding: 8px;
+      box-shadow: var(--shadow); z-index: 1300;
+      width: 200px;
+    }
+    .mobile-menu-dropdown a {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px; border-radius: 8px;
+      color: var(--text-muted); font-size: 14px; font-weight: 500;
+    }
+    .mobile-menu-dropdown a:hover {
+      background-color: var(--bg-soft); color: var(--text);
+    }
+    .mobile-menu-btn { display: none; }
+
+    /* Footer */
+    footer.app-footer{
+        max-width:960px;margin:0 auto 40px;padding:24px;
+        color:var(--text-muted);font-size:14px;display:flex;
+        justify-content:space-between;gap:16px; 
+        border-top: 1px solid var(--border);text-align:center;
+    }
+    footer a{color:var(--text-muted); font-weight:500;}
+    footer a:hover{color:var(--text);}
+
+    /* Responsive */
+    @media (max-width: 900px) {
+        .vocab-grid { grid-template-columns: 1fr; }
+        .roadmap-container { flex-direction: column; align-items: center; }
+        .roadmap-arrow { display: none; }
+        main.app-main { margin-top: 100px; }
+        .section-header h2 { font-size: 28px; }
+    }
+    
+    @media (max-width: 820px){
+      .main-nav a[href="./chatai.html"],
+      .main-nav a[href="./roomchat.html"],
+      .main-nav a[href="#pricing"] {
+        display: none;
+      }
+      .main-nav span { display: none; }
+      .main-nav a { padding: 8px; gap: 0; }
+      .site-title { display: none; }
+      .main-nav { margin-left: 8px; gap: 8px; }
+      .header-right { gap: 8px; }
+      header.app-header{ padding: 0 16px; }
+      .mobile-menu-btn { display: inline-flex; }
+    }
+
+    @media (max-width: 480px) {
+        .vocab-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <div style="display:flex;align-items:center;">
+      <div class="brand">
+        <img src="https://wordwhizzy.io.vn/fde8b58d-513b-45b3-9a8b-8a81e7535bec.jpg" alt="WordWhizzy Logo" class="logo">
+      </div>
+      <nav class="main-nav" aria-label="Chính">
+        <a href="./index.html" title="Trang chủ"><i class="fa-solid fa-house"></i> <span>Trang chủ</span></a>
+        <a href="./tuhoc.html" title="Thư viện" class="active"><i class="fa-solid fa-book-open"></i> <span>Thư viện</span></a>
+        <a href="./main/vocabulary.html" title="Tạo Flashcard"><i class="fa-solid fa-layer-group"></i> <span>Flashcard</span></a>
+        <a href="./chatai.html" title="Chat AI"><i class="fa-solid fa-comments"></i> <span>Chat AI</span></a>
+        <a href="./roomchat.html" title="Room Chat"><i class="fa-solid fa-users"></i> <span>Room Chat</span></a>
+        <a href="./index.html#pricing" title="Gói học"><i class="fa-solid fa-gem"></i> <span>Gói học</span></a>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <a href="thongbao.html" class="icon-btn" id="btn-noti" title="Thông báo"><i class="fa-regular fa-bell"></i></a>
+      <div class="icon-btn" id="btn-help" title="Trợ giúp"><i class="fa-regular fa-circle-question"></i></div>
+      
+      <div class="icon-btn mobile-menu-btn" id="mobileMenuBtn">
+        <i class="fa-solid fa-ellipsis-vertical"></i>
+        <div class="mobile-menu-dropdown" id="mobileMenuDropdown">
+          <a href="./chatai.html" title="Chat AI"><i class="fa-solid fa-comments"></i> <span>Chat AI</span></a>
+          <a href="./roomchat.html" title="Room Chat"><i class="fa-solid fa-users"></i> <span>Room Chat</span></a>
+          <a href="./index.html#pricing" title="Gói học"><i class="fa-solid fa-gem"></i> <span>Gói học</span></a>
+        </div>
+      </div>
+
+      <div class="user-display" id="headerControls"></div>
+    </div>
+  </header>
+  
+  <main class="app-main">
+
+    <section id="roadmap" class="content-section">
+      <div class="section-header">
+        <h2>Lộ Trình Học Tập Đề Xuất</h2>
+        <p>Bắt đầu hành trình chinh phục từ vựng của bạn theo các bước được thiết kế khoa học để đạt hiệu quả cao nhất.</p>
+      </div>
+      <div class="roadmap-container">
+        <div class="roadmap-step">
+          <div class="roadmap-icon"><i class="fas fa-seedling"></i></div>
+          <h3>1. Nền tảng</h3>
+          <p>Các từ vựng cơ bản và thông dụng nhất để xây dựng gốc rễ vững chắc.</p>
+        </div>
+        <i class="fas fa-arrow-right roadmap-arrow"></i>
+        <div class="roadmap-step">
+          <div class="roadmap-icon"><i class="fas fa-book-open"></i></div>
+          <h3>2. Theo chủ đề</h3>
+          <p>Mở rộng vốn từ với các chủ đề bạn yêu thích và ứng dụng trong thực tế.</p>
+        </div>
+        <i class="fas fa-arrow-right roadmap-arrow"></i>
+        <div class="roadmap-step">
+          <div class="roadmap-icon"><i class="fas fa-puzzle-piece"></i></div>
+          <h3>3. Luyện tập</h3>
+          <p>Củng cố kiến thức đã học qua các trò chơi tương tác và thú vị.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="topics" class="content-section">
+      <div class="section-header">
+        <h2>Kho Từ Vựng Có Sẵn</h2>
+        <p>Khám phá các bộ từ vựng đa dạng, được biên soạn kỹ lưỡng để phù hợp với mọi cấp độ và mục tiêu học tập của bạn.</p>
+      </div>
+      <div class="vocab-grid">
+        <a href="#" class="vocab-card">
+          <div class="topic-icon"><i class="fas fa-plane"></i></div>
+          <h3>Từ Vựng Du Lịch</h3>
+          <p>Các từ và cụm từ cần thiết giúp bạn tự tin giao tiếp khi du lịch và khám phá thế giới.</p>
+          <div class="stats">
+            <span><i class="fas fa-book"></i> 500+ từ</span>
+            <span><i class="fas fa-users"></i> 2.5k+ học viên</span>
+          </div>
+        </a>
+        <a href="#" class="vocab-card">
+          <div class="topic-icon"><i class="fas fa-briefcase"></i></div>
+          <h3>Từ Vựng Công Sở</h3>
+          <p>Nắm vững từ vựng chuyên ngành về môi trường công sở, phỏng vấn và giao tiếp chuyên nghiệp.</p>
+          <div class="stats">
+            <span><i class="fas fa-book"></i> 450+ từ</span>
+            <span><i class="fas fa-users"></i> 1.8k+ học viên</span>
+          </div>
+        </a>
+        <a href="#" class="vocab-card">
+          <div class="topic-icon"><i class="fas fa-utensils"></i></div>
+          <h3>Từ Vựng Ẩm Thực</h3>
+          <p>Khám phá thế giới đa dạng của các món ăn, nhà hàng và kỹ thuật nấu nướng qua từ vựng.</p>
+          <div class="stats">
+            <span><i class="fas fa-book"></i> 400+ từ</span>
+            <span><i class="fas fa-users"></i> 1.2k+ học viên</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <div>© 2025 WordWhizzy — Designed for Clarity & Focus</div>
+    <div>
+      <a href="./support.html">Hỗ trợ</a> · 
+      <a href="https://www.facebook.com/WordWhizzy" target="_blank">Facebook</a> · 
+      <a href="./danhgia.html">Đánh giá</a>
+    </div>
+  </footer>
+
+  <script type="module">
+    // Firebase and Auth scripts would be needed here for full functionality
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenuDropdown = document.getElementById('mobileMenuDropdown');
+
+    if(mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); 
+        mobileMenuDropdown.style.display = mobileMenuDropdown.style.display === 'block' ? 'none' : 'block';
+      });
+    }
+
+    document.addEventListener('click', (ev) => {
+      if (!ev.target.closest('.user-display') && !ev.target.closest('.mobile-menu-btn')) {
+        if (mobileMenuDropdown) mobileMenuDropdown.style.display = 'none';
+      }
+    });
+
+    // Placeholder for user auth display
+    const headerControls = document.getElementById('headerControls');
+    // In a real app, you would check auth state and render the user avatar or a login button.
+  </script>
+
+</body>
+</html>

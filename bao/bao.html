@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Theo dõi Hoạt động Người dùng</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Firebase SDKs (as provided by you) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <style>
+        /* Custom styles for a better look and feel */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .btn {
+            @apply px-4 py-2 rounded-lg font-semibold text-white shadow-md transition-transform transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-offset-2;
+        }
+        .btn-primary {
+            @apply bg-blue-500 hover:bg-blue-600 focus:ring-blue-400;
+        }
+        .btn-secondary {
+            @apply bg-gray-500 hover:bg-gray-600 focus:ring-gray-400;
+        }
+        .btn-danger {
+            @apply bg-red-500 hover:bg-red-600 focus:ring-red-400;
+        }
+        .card {
+            @apply bg-white rounded-xl shadow-lg p-6;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <!-- Login Container -->
+    <div id="login-container" class="min-h-screen flex items-center justify-center">
+        <div class="text-center card max-w-sm w-full">
+            <h1 class="text-3xl font-bold mb-2 text-blue-600">WordWhizzy</h1>
+            <p class="text-gray-600 mb-6">Chào mừng bạn! Vui lòng đăng nhập để tiếp tục.</p>
+            <button id="login-btn" class="btn btn-primary w-full flex items-center justify-center space-x-2">
+                <svg class="w-5 h-5" viewBox="0 0 48 48"><defs><path id="a" d="M44.5 20H24v8.5h11.8C34.7 33.9 30.1 37 24 37c-7.2 0-13-5.8-13-13s5.8-13 13-13c3.1 0 5.9 1.1 8.1 2.9l6.4-6.4C34.6 4.1 29.6 2 24 2 11.8 2 2 11.8 2 24s9.8 22 22 22c11 0 21-8 21-22 0-1.3-.2-2.7-.5-4z"/></defs><clipPath id="b"><use xlink:href="#a" overflow="visible"/></clipPath><path clip-path="url(#b)" fill="#FBBC05" d="M0 37V11l17 13z"/><path clip-path="url(#b)" fill="#EA4335" d="M0 11l17 13 7-6.1L48 14V0H0z"/><path clip-path="url(#b)" fill="#34A853" d="M0 37l30-23 7.9 1L48 0v48H0z"/><path clip-path="url(#b)" fill="#4285F4" d="M48 48L17 24l-4-3 35-10z"/></svg>
+                <span>Đăng nhập với Google</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- App Container (hidden by default) -->
+    <div id="app-container" class="hidden min-h-screen p-4 sm:p-6 lg:p-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Header -->
+            <header class="flex flex-col sm:flex-row justify-between items-center mb-8 card">
+                <div class="flex items-center space-x-4 mb-4 sm:mb-0">
+                    <img id="user-photo" class="w-12 h-12 rounded-full" src="https://placehold.co/100x100/EBF4FF/76A9FA?text=User" alt="User Photo">
+                    <div>
+                        <h2 class="text-xl font-bold">Chào, <span id="user-name">User</span>!</h2>
+                        <p id="user-email" class="text-sm text-gray-500">email@example.com</p>
+                    </div>
+                </div>
+                <button id="logout-btn" class="btn btn-danger w-full sm:w-auto">Đăng xuất</button>
+            </header>
+
+            <!-- Action Section -->
+            <div class="card mb-8">
+                <h3 class="text-lg font-semibold mb-4">Thực hiện hành động để tăng điểm</h3>
+                <p class="text-gray-600 mb-4">Mỗi lần bạn nhấn một nút bên dưới, bạn sẽ nhận được 1 điểm hoạt động.</p>
+                <div class="flex flex-wrap gap-4">
+                    <button class="btn btn-primary" onclick="recordActivity('hoan_thanh_bai_hoc')">Hoàn thành bài học</button>
+                    <button class="btn btn-primary" onclick="recordActivity('chia_se_ket_qua')">Chia sẻ kết quả</button>
+                    <button class="btn btn-primary" onclick="recordActivity('moi_ban_be')">Mời bạn bè</button>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="card">
+                <!-- Navigation -->
+                <div class="flex border-b mb-6">
+                    <button id="show-ranking-btn" class="py-2 px-4 font-semibold border-b-2 border-blue-500 text-blue-500">Bảng xếp hạng cộng đồng</button>
+                    <button id="show-personal-btn" class="py-2 px-4 font-semibold text-gray-500">Hoạt động cá nhân</button>
+                </div>
+
+                <!-- Community Ranking View -->
+                <div id="ranking-view">
+                    <h3 class="text-2xl font-bold mb-4">🏆 Bảng xếp hạng Top 10</h3>
+                    <div id="ranking-loader" class="text-center py-8">
+                        <p>Đang tải bảng xếp hạng...</p>
+                    </div>
+                    <ul id="ranking-list" class="space-y-4">
+                        <!-- Ranking items will be injected here -->
+                    </ul>
+                </div>
+
+                <!-- Personal Activity View (hidden by default) -->
+                <div id="personal-view" class="hidden">
+                    <h3 class="text-2xl font-bold mb-4">📊 Hoạt động cá nhân</h3>
+                    <div id="personal-loader" class="text-center py-8">
+                        <p>Đang tải dữ liệu của bạn...</p>
+                    </div>
+                    <div id="personal-stats-content" class="hidden">
+                         <div class="mb-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+                            <p class="text-lg font-semibold text-blue-800">Tổng điểm hoạt động của bạn: <span id="total-score" class="font-bold text-2xl">0</span></p>
+                        </div>
+                        <div class="mb-6">
+                            <h4 class="text-xl font-semibold mb-2">Biểu đồ hoạt động</h4>
+                            <div class="flex justify-center gap-2 mb-4">
+                                <button id="chart-daily-btn" class="btn btn-secondary !bg-blue-500 !text-white text-sm">Theo Ngày</button>
+                                <button id="chart-monthly-btn" class="btn btn-secondary text-sm">Theo Tháng</button>
+                                <button id="chart-yearly-btn" class="btn btn-secondary text-sm">Theo Năm</button>
+                            </div>
+                            <div class="relative h-96">
+                                <canvas id="activityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                     <div id="no-personal-data" class="hidden text-center py-8 bg-gray-50 rounded-lg">
+                        <p class="text-gray-600">Bạn chưa có hoạt động nào. Hãy tương tác với web để bắt đầu!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        // --- FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            // This config was provided by you.
+            apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
+            authDomain: "wordwhizzy.firebaseapp.com",
+            projectId: "wordwhizzy",
+            storageBucket: "wordwhizzy.appspot.com", // Corrected from .firebasestorage.app
+            messagingSenderId: "179575783469",
+            appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4",
+            measurementId: "G-XPFQ8PCTRE",
+        };
+
+        // --- INITIALIZE FIREBASE ---
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // --- DOM ELEMENTS ---
+        const loginContainer = document.getElementById('login-container');
+        const appContainer = document.getElementById('app-container');
+        const loginBtn = document.getElementById('login-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        
+        const rankingView = document.getElementById('ranking-view');
+        const personalView = document.getElementById('personal-view');
+        const showRankingBtn = document.getElementById('show-ranking-btn');
+        const showPersonalBtn = document.getElementById('show-personal-btn');
+        
+        const rankingList = document.getElementById('ranking-list');
+        const rankingLoader = document.getElementById('ranking-loader');
+
+        const personalLoader = document.getElementById('personal-loader');
+        const personalStatsContent = document.getElementById('personal-stats-content');
+        const noPersonalData = document.getElementById('no-personal-data');
+        const totalScoreEl = document.getElementById('total-score');
+        
+        const chartDailyBtn = document.getElementById('chart-daily-btn');
+        const chartMonthlyBtn = document.getElementById('chart-monthly-btn');
+        const chartYearlyBtn = document.getElementById('chart-yearly-btn');
+
+
+        // --- STATE MANAGEMENT ---
+        let currentUser = null;
+        let activityChart = null;
+        let personalActivityData = [];
+
+        // --- AUTHENTICATION ---
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // User is signed in
+                currentUser = user;
+                loginContainer.style.display = 'none';
+                appContainer.style.display = 'block';
+                setupUI(user);
+                loadRankingData();
+                loadPersonalData();
+            } else {
+                // User is signed out
+                currentUser = null;
+                loginContainer.style.display = 'flex';
+                appContainer.style.display = 'none';
+            }
+        });
+
+        loginBtn.addEventListener('click', () => {
+            auth.signInWithPopup(provider).catch(error => {
+                console.error("Lỗi đăng nhập:", error);
+                alert("Đã xảy ra lỗi khi đăng nhập. Vui lòng thử lại.");
+            });
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            auth.signOut();
+        });
+
+        function setupUI(user) {
+            document.getElementById('user-name').textContent = user.displayName;
+            document.getElementById('user-email').textContent = user.email;
+            document.getElementById('user-photo').src = user.photoURL || `https://placehold.co/100x100/EBF4FF/76A9FA?text=${user.displayName.charAt(0)}`;
+        }
+
+        // --- ACTIVITY TRACKING ---
+        window.recordActivity = async (actionType) => {
+            if (!currentUser) {
+                alert("Vui lòng đăng nhập để ghi lại hoạt động.");
+                return;
+            }
+
+            console.log(`Ghi lại hoạt động: ${actionType} cho user: ${currentUser.uid}`);
+            
+            const userScoreRef = db.collection('user_scores').doc(currentUser.uid);
+            const activityRef = db.collection('user_activity');
+
+            const batch = db.batch();
+
+            // 1. Add to activity log
+            batch.add(activityRef, {
+                userId: currentUser.uid,
+                userName: currentUser.displayName,
+                action: actionType,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            });
+
+            // 2. Increment score
+            // We use set with merge to create the document if it doesn't exist
+            batch.set(userScoreRef, {
+                score: firebase.firestore.FieldValue.increment(1),
+                userName: currentUser.displayName,
+                userId: currentUser.uid,
+                photoURL: currentUser.photoURL
+            }, { merge: true });
+
+            try {
+                await batch.commit();
+                console.log("Ghi hoạt động và cập nhật điểm thành công!");
+                // Optimistically update UI
+                totalScoreEl.textContent = parseInt(totalScoreEl.textContent) + 1;
+                // Reload data to reflect changes
+                loadPersonalData(); 
+                loadRankingData();
+            } catch (error) {
+                console.error("Lỗi khi ghi hoạt động: ", error);
+            }
+        };
+
+        // --- DATA LOADING & DISPLAY ---
+
+        // Load Community Ranking
+        async function loadRankingData() {
+            rankingLoader.style.display = 'block';
+            rankingList.innerHTML = '';
+
+            try {
+                const snapshot = await db.collection('user_scores')
+                                         .orderBy('score', 'desc')
+                                         .limit(10)
+                                         .get();
+                
+                if (snapshot.empty) {
+                    rankingList.innerHTML = '<p class="text-center text-gray-500">Chưa có ai trên bảng xếp hạng. Hãy là người đầu tiên!</p>';
+                } else {
+                    let rank = 1;
+                    snapshot.forEach(doc => {
+                        const user = doc.data();
+                        const rankColor = rank === 1 ? 'gold' : rank === 2 ? 'silver' : rank === 3 ? '#cd7f32' : 'gray';
+                        const medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+                        
+                        const li = document.createElement('li');
+                        li.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+                        li.innerHTML = `
+                            <div class="flex items-center space-x-4">
+                                <span class="text-lg font-bold w-8 text-center" style="color: ${rankColor};">${rank} ${medal}</span>
+                                <img class="w-10 h-10 rounded-full" src="${user.photoURL || `https://placehold.co/100x100/EBF4FF/76A9FA?text=${user.userName.charAt(0)}`}" alt="${user.userName}">
+                                <span class="font-semibold">${user.userName}</span>
+                            </div>
+                            <span class="font-bold text-blue-600 text-lg">${user.score} điểm</span>
+                        `;
+                        rankingList.appendChild(li);
+                        rank++;
+                    });
+                }
+            } catch (error) {
+                console.error("Lỗi tải bảng xếp hạng: ", error);
+                rankingList.innerHTML = '<p class="text-center text-red-500">Không thể tải bảng xếp hạng. Vui lòng thử lại.</p>';
+            } finally {
+                rankingLoader.style.display = 'none';
+            }
+        }
+
+        // Load Personal Data
+        async function loadPersonalData() {
+            if (!currentUser) return;
+
+            personalLoader.style.display = 'block';
+            personalStatsContent.style.display = 'none';
+            noPersonalData.style.display = 'none';
+
+            try {
+                // Get total score
+                const scoreDoc = await db.collection('user_scores').doc(currentUser.uid).get();
+                if (scoreDoc.exists) {
+                    totalScoreEl.textContent = scoreDoc.data().score || 0;
+                } else {
+                    totalScoreEl.textContent = 0;
+                }
+
+                // Get all activities for chart, remove orderBy to avoid index error
+                const activitySnapshot = await db.collection('user_activity')
+                                                 .where('userId', '==', currentUser.uid)
+                                                 .get();
+                
+                if (activitySnapshot.empty) {
+                    noPersonalData.style.display = 'block';
+                    personalLoader.style.display = 'none';
+                    return;
+                }
+                
+                // Map and sort the data on the client-side
+                personalActivityData = activitySnapshot.docs.map(doc => doc.data());
+                personalActivityData.sort((a, b) => {
+                    const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+                    const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+                    return timeA - timeB;
+                });
+                
+                personalStatsContent.style.display = 'block';
+                
+                // Default to daily chart
+                updateChart('daily');
+
+            } catch (error) {
+                console.error("Lỗi tải dữ liệu cá nhân: ", error);
+                noPersonalData.innerHTML = '<p class="text-center text-red-500">Không thể tải dữ liệu. Vui lòng thử lại.</p>';
+                noPersonalData.style.display = 'block';
+            } finally {
+                personalLoader.style.display = 'none';
+            }
+        }
+        
+        // --- CHARTING ---
+        function getAggregatedData(period) {
+            const aggregated = {};
+            personalActivityData.forEach(activity => {
+                if (!activity.timestamp) return;
+                const date = activity.timestamp.toDate();
+                let key;
+
+                if (period === 'daily') {
+                    key = date.toISOString().split('T')[0]; // YYYY-MM-DD
+                } else if (period === 'monthly') {
+                    key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; // YYYY-MM
+                } else { // yearly
+                    key = date.getFullYear().toString(); // YYYY
+                }
+                
+                aggregated[key] = (aggregated[key] || 0) + 1;
+            });
+            
+            const labels = Object.keys(aggregated).sort();
+            const data = labels.map(label => aggregated[label]);
+            
+            return { labels, data };
+        }
+
+        function updateChart(period) {
+            const { labels, data } = getAggregatedData(period);
+            
+            const ctx = document.getElementById('activityChart').getContext('2d');
+            
+            if (activityChart) {
+                activityChart.destroy();
+            }
+            
+            activityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Số lượng hoạt động',
+                        data: data,
+                        borderColor: 'rgba(59, 130, 246, 1)',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.3,
+                        pointBackgroundColor: 'rgba(59, 130, 246, 1)',
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0 // Ensure y-axis shows whole numbers
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ` Hoạt động: ${context.raw}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Update button styles
+            [chartDailyBtn, chartMonthlyBtn, chartYearlyBtn].forEach(btn => {
+                btn.classList.remove('!bg-blue-500', '!text-white');
+                btn.classList.add('bg-gray-500', 'text-white');
+            });
+            const activeBtn = document.getElementById(`chart-${period}-btn`);
+            activeBtn.classList.add('!bg-blue-500', '!text-white');
+            activeBtn.classList.remove('bg-gray-500');
+        }
+
+        chartDailyBtn.addEventListener('click', () => updateChart('daily'));
+        chartMonthlyBtn.addEventListener('click', () => updateChart('monthly'));
+        chartYearlyBtn.addEventListener('click', () => updateChart('yearly'));
+
+        // --- VIEW NAVIGATION ---
+        function switchView(viewToShow) {
+            if (viewToShow === 'ranking') {
+                rankingView.style.display = 'block';
+                personalView.style.display = 'none';
+                showRankingBtn.classList.add('border-blue-500', 'text-blue-500');
+                showPersonalBtn.classList.remove('border-blue-500', 'text-blue-500');
+                showPersonalBtn.classList.add('text-gray-500');
+            } else {
+                rankingView.style.display = 'none';
+                personalView.style.display = 'block';
+                showPersonalBtn.classList.add('border-blue-500', 'text-blue-500');
+                showRankingBtn.classList.remove('border-blue-500', 'text-blue-500');
+                showRankingBtn.classList.add('text-gray-500');
+            }
+        }
+
+        showRankingBtn.addEventListener('click', () => switchView('ranking'));
+        showPersonalBtn.addEventListener('click', () => switchView('personal'));
+
+    </script>
+</body>
+</html>

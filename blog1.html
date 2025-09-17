@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Blog: Giới Thiệu WordWhizzy</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg: #ffffff;
+      --bg-soft: #f9f9f9;
+      --text: #111111;
+      --text-muted: #565656;
+      --border: #e8e8e8;
+      --radius: 14px;
+      --shadow: 0 8px 24px rgba(16,16,16,0.05);
+      --accent: #111111;
+      --gap: 24px;
+      font-synthesis: none;
+    }
+
+    /* Reset & base */
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale}
+    a{text-decoration:none;color:inherit}
+    img{max-width:100%;display:block}
+
+    /* Layout */
+    main.app-main{
+        max-width:960px;
+        margin: 60px auto 80px; /* Adjusted margin after removing header */
+        padding:0 24px;
+    }
+    
+    /* Button Style */
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;padding:12px 20px;
+      border-radius:12px;
+      font-weight:600;
+      font-size:15px;
+      border:1px solid var(--border);
+      cursor:pointer; 
+      transition: all 0.2s ease;
+    }
+    .btn-secondary{
+        background:var(--bg-soft);
+        color:var(--text)
+    }
+    .btn-secondary:hover {
+        background-color: var(--border);
+    }
+
+    /* Hero Section (for Blog Title) */
+    .hero{text-align:center; padding-top: 20px;}
+    .hero h1{font-size:48px;margin:0 0 16px;font-weight:700;letter-spacing:-1px;line-height:1.2;}
+
+    /* Blog Content Specific Styles */
+    .blog-content {
+        max-width: 720px;
+        margin: 0 auto;
+    }
+    .blog-content h3 {
+        font-size: 24px;
+        font-weight: 600;
+        margin-top: 48px;
+        margin-bottom: 12px;
+    }
+    .blog-content p {
+        font-size: 16px;
+        line-height: 1.7;
+        color: var(--text-muted);
+        margin-bottom: 24px;
+    }
+    .blog-content img {
+        width: 100%;
+        margin: 16px 0 24px 0;
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+    }
+    
+    /* Footer */
+    footer.app-footer{max-width:960px;margin:80px auto 40px;padding-top:40px;color:var(--text-muted);font-size:14px;display:flex;justify-content:space-between;gap:16px; border-top: 1px solid var(--border); text-align:center;}
+    footer a{color:var(--text-muted); font-weight:500;} footer a:hover{color:var(--text);}
+    
+    /* Responsive */
+    @media (max-width: 900px){
+      .hero h1{font-size:36px;}
+      .hero p{font-size:16px;}
+    }
+
+  </style>
+</head>
+<body>
+
+  <main class="app-main">
+    
+    <div style="margin-bottom: 32px;">
+        <a href="thongbao.html" class="btn btn-secondary">
+            <i class="fa-solid fa-arrow-left"></i> Quay lại
+        </a>
+    </div>
+
+    <section class="hero" style="padding-top: 0;">
+        <h1>WordWhizzy: Học Từ Vựng Thông Minh, Giao Diện Tinh Tế</h1>
+    </section>
+
+    <section class="blog-content">
+        <p>Chào mừng bạn đến với WordWhizzy! Nếu bạn đang tìm kiếm một phương pháp đột phá để chinh phục vốn từ vựng, không còn cảm thấy nhàm chán và thực sự ghi nhớ bền vững, bạn đã đến đúng nơi. WordWhizzy không chỉ là một công cụ học từ, mà là một trải nghiệm. Chúng tôi kết hợp phương pháp lặp lại ngắt quãng với trí tuệ nhân tạo AI để giúp bạn chinh phục vốn từ một cách hiệu quả và thú vị nhất.</p>
+
+        <h3>Trí Tuệ Nhân Tạo AI: Người Gia Sư Cá Nhân Của Riêng Bạn</h3>
+        <p>Điểm khác biệt lớn nhất của WordWhizzy nằm ở công nghệ lõi. Hệ thống AI của chúng tôi sẽ cá nhân hóa lộ trình học tập, giúp bạn ôn tập đúng từ, đúng thời điểm để ghi nhớ sâu vào tiềm thức. Thay vì học một cách dàn trải, bạn sẽ tập trung vào những gì thực sự cần thiết, tối ưu hóa từng phút giây học tập.</p>
+        <img src="https://images.unsplash.com/photo-1534723328310-e82dad3ee43f?q=80&w=1974" alt="Hình ảnh minh họa AI và bộ não con người">
+
+        <h3>Giao Diện Tối Giản: Chỉ Tập Trung Vào Điều Quan Trọng</h3>
+        <p>Chúng tôi tin rằng sự tập trung là chìa khóa của việc học hiệu quả. Vì vậy, WordWhizzy được thiết kế với giao diện tối giản, tinh tế và không có các yếu tố gây xao lãng. Mọi thứ bạn cần đều ở ngay trước mắt, giúp bạn hoàn toàn đắm chìm vào việc học mà không bị làm phiền.</p>
+        <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=1887" alt="Một không gian làm việc sạch sẽ và tập trung">
+
+        <h3>Thư Viện Từ Vựng Khổng Lồ: Chinh Phục Mọi Chủ Đề</h3>
+        <p>WordWhizzy cung cấp quyền truy cập vào hàng ngàn bộ từ vựng phong phú được biên soạn cẩn thận theo từng chủ đề, cấp độ và các kỳ thi phổ biến. Dù mục tiêu của bạn là IELTS, TOEIC hay chỉ đơn giản là mở rộng kiến thức, kho từ vựng của chúng tôi luôn sẵn sàng đáp ứng.</p>
+        <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?q=80&w=2070" alt="Giá sách đầy ắp trong thư viện">
+
+        <h3>Hơn Cả Học Tập: Kết Nối và Thảo Luận Cùng Cộng Đồng</h3>
+        <p>Học một mình đôi khi thật cô đơn. Thấu hiểu điều đó, WordWhizzy mang đến tính năng "Phòng Thảo Luận" độc đáo, nơi bạn có thể tạo nhóm chat riêng, tham gia các nhóm cộng đồng để cùng nhau trao đổi kiến thức. Đặc biệt, bạn còn có thể chia sẻ các thư mục từ vựng của mình ngay trong cuộc trò chuyện, giúp đỡ bạn bè và cùng nhau tiến bộ.</p>
+        <img src="https://images.unsplash.com/photo-1543269865-cbf427effbad?q=80&w=2070" alt="Một nhóm người đang thảo luận và làm việc cùng nhau">
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <div>© 2025 WordWhizzy — Designed for Clarity & Focus</div>
+    <div>
+        <a href="./support.html">Hỗ trợ</a> · 
+        <a href="https://www.facebook.com/WordWhizzy" target="_blank">Facebook</a> · 
+        <a href="./danhgia.html">Đánh giá</a>
+    </div>
+  </footer>
+
+</body>
+</html>

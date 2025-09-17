@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chức Năng - WordWhizzy</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+    /* Chỉ áp dụng cho thiết bị cảm ứng để không ảnh hưởng keyboard users */
+@media (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent; /* iOS, Chrome mobile */
+    -webkit-touch-callout: none;              /* tắt menu giữ chạm (iOS) nếu cần */
+  }
+}
+
+      :root {
+        --primary-color: #60a5fa;
+        --secondary-color: #2563eb;
+        --background: #f0f4f8;
+        --card-bg: #ffffff;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        --glow: 0 0 25px rgba(37, 99, 235, 0.6);
+        --header-height: 60px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background: var(--background);
+        color: var(--text-primary);
+        line-height: 1.6;
+        padding-top: var(--header-height);
+        overflow-x: hidden;
+      }
+
+      /* --- HEADER STYLES --- */
+       .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: var(--header-height);
+        background: var(--card-bg);
+        box-shadow: var(--shadow);
+        z-index: 1200;
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .header .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .header .logo img {
+        width: 55px;
+      }
+
+      .header .logo-text {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+
+      .header-nav {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .header-nav a {
+        text-decoration: none;
+        color: var(--text-primary);
+        font-weight: 400;
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 8px;
+        transition: background 0.3s, color 0.3s;
+      }
+
+      .header-nav a i {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+         width: 20px;
+        text-align: center;
+      }
+
+      .header-nav a:hover {
+        background: var(--primary-color);
+        color: var(--card-bg);
+      }
+
+      .header-nav a:hover i {
+        color: var(--card-bg);
+      }
+
+      .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .auth-icon-btn {
+          display: none;
+      }
+
+      .auth-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.4rem 1rem;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 20px;
+        transition: all 0.2s ease;
+        height: 32px;
+      }
+
+      .signin-btn {
+        background: transparent;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+      }
+
+      .signin-btn:hover {
+        background: var(--primary-color);
+        color: var(--card-bg);
+      }
+
+      .signup-btn {
+        background: var(--primary-color);
+        color: var(--card-bg);
+      }
+
+      .signup-btn:hover {
+        background: var(--secondary-color);
+      }
+
+      @media (max-width: 768px) {
+        .header {
+          padding: 0 0.5rem; 
+        }
+        
+        .header .logo {
+          display: none;
+        }
+
+        .header-nav {
+          flex-grow: 1;
+          display: flex;
+          justify-content: space-around;
+          gap: 0;
+        }
+
+        .header-nav a {
+          padding: 0.5rem;
+          font-size: 1.3rem;
+        }
+
+        .header-nav a span {
+          display: none;
+        }
+        
+        .header-nav a i {
+          width: auto;
+        }
+        
+        .auth-btn {
+          display: none;
+        }
+
+        .auth-icon-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.6rem;
+          color: var(--primary-color);
+          text-decoration: none;
+          padding: 0.5rem;
+          transition: color 0.3s;
+        }
+        
+        .auth-icon-btn:hover {
+          color: var(--secondary-color);
+        }
+
+        .header-controls {
+            gap: 0;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .header-nav a {
+          padding: 0.5rem 0.4rem; 
+          font-size: 1.2rem;
+        }
+        
+        .auth-icon-btn {
+          font-size: 1.5rem;
+        }
+      }
+
+      /* --- MAIN CONTENT: FEATURE SELECTION --- */
+      .main-content {
+        max-width: 1200px;
+        margin: 4rem auto;
+        padding: 0 1rem;
+        text-align: center;
+      }
+
+      .main-content h1 {
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 1rem;
+      }
+
+      .main-content .page-subtitle {
+        font-size: 1.15rem;
+        color: var(--text-secondary);
+        margin-bottom: 4rem;
+        max-width: 700px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .features-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2.5rem;
+      }
+
+      .function-card {
+        background: var(--card-bg);
+        padding: 2.5rem 2rem;
+        border-radius: 20px;
+        box-shadow: var(--shadow);
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.4s ease, box-shadow 0.4s ease;
+        border: 2px solid transparent;
+      }
+
+      .function-card:hover {
+        transform: translateY(-12px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+        border-color: var(--primary-color);
+      }
+
+      .function-card .icon {
+        font-size: 3rem;
+        color: var(--primary-color);
+        margin-bottom: 1.5rem;
+        height: 50px;
+      }
+
+      .function-card h3 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.8rem;
+        color: var(--text-primary);
+      }
+
+      .function-card p {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        line-height: 1.7;
+        margin-bottom: 2rem;
+        flex-grow: 1; /* Đảm bảo các thẻ có chiều cao đều nhau */
+      }
+
+      .function-card .btn {
+        display: inline-block;
+        padding: 0.7rem 1.5rem;
+        border-radius: 25px;
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: var(--primary-color);
+        color: var(--card-bg);
+        text-align: center;
+        align-self: flex-start; /* Nút ở đầu thẻ */
+      }
+
+      .function-card .btn:hover {
+        background: var(--secondary-color);
+        transform: scale(1.05);
+      }
+
+      /* --- FOOTER STYLES (Giữ nguyên từ index.html) --- */
+      .footer {
+        background: var(--card-bg);
+        padding: 3rem 1rem;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .footer-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+      }
+
+      .footer h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.8rem;
+      }
+
+      .footer ul {
+        list-style: none;
+      }
+
+      .footer ul li {
+        margin-bottom: 0.6rem;
+      }
+
+      .footer ul a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.3s;
+      }
+
+      .footer ul a:hover {
+        color: var(--primary-color);
+      }
+
+      .footer .social-links a {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .footer .copyright {
+        text-align: center;
+        margin-top: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo">
+        <a
+          href="./index.html"
+          style="display: flex; align-items: center; text-decoration: none"
+        >
+          <img src="f.png" alt="Smart Lex Logo" />
+          <span class="logo-text">WordWhizzy</span>
+        </a>
+      </div>
+      <nav class="header-nav" id="headerNav">
+        <a href="./index.html"><i class="fas fa-home"></i><span></span></a>
+        <a href="./main/vocabulary.html"
+          ><i class="fas fa-book"></i><span> </span></a
+        >
+        <a href="./tuhoc.html"
+          ><i class="fas fa-route"></i><span> </span></a
+        >
+        <a href="./muahang.html"
+          ><i class="fas fa-shopping-cart"></i><span> </span></a
+        >
+             <a href="./more.html"
+          ><i class="fas fa-ellipsis-h"></i><span></span></a
+        >
+      </nav>
+      <div class="header-controls">
+        <a class="auth-btn signin-btn" href="login.html?mode=signin"
+          >Đăng nhập</a
+        >
+        <a class="auth-btn signup-btn" href="login.html?mode=signup">Đăng ký</a>
+        
+        <a href="login.html?mode=signin" class="auth-icon-btn">
+            <i class="fas fa-user-circle"></i>
+        </a>
+      </div>
+    </header>
+
+    <main class="main-content">
+      <h1>Khám Phá Các Tính Năng</h1>
+      <p class="page-subtitle">
+        Chọn một công cụ để bắt đầu hành trình chinh phục tiếng Anh của bạn. Mỗi
+        chức năng được thiết kế để tối ưu hóa trải nghiệm học tập của bạn.
+      </p>
+
+      <div class="features-container">
+        <div class="function-card">
+          <div class="icon"><i class="fas fa-robot"></i></div>
+          <h3>Chat Cùng AI</h3>
+          <p>
+            Luyện tập giao tiếp, hỏi đáp, và nhận phản hồi tức thì từ gia sư AI.
+            Một người bạn đồng hành 24/7 trên con đường học tập.
+          </p>
+          <a href="./chatai.html" class="btn">Trò chuyện</a>
+        </div>
+
+        <div class="function-card">
+          <div class="icon"><i class="fas fa-chart-bar"></i></div>
+          <h3>Xem Lịch Học</h3>
+          <p>
+            Theo dõi sự tiến bộ của bạn qua các biểu đồ trực quan. Biết được
+            điểm mạnh, điểm yếu và đặt mục tiêu cho các buổi học tiếp theo.
+          </p>
+          <a href="./progress.html" class="btn">Xem báo cáo</a>
+        </div>
+
+        <div class="function-card">
+          <div class="icon"><i class="fas fa-shopping-cart"></i></div>
+          <h3>Bài Báo</h3>
+          <p>
+            Nâng cấp tài khoản của bạn để mở khóa toàn bộ tính năng cao cấp,
+            tăng tốc quá trình học và đạt hiệu quả tối đa.
+          </p>
+          <a href="./bao/bao.html" class="btn">Nâng cấp</a>
+        </div>
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container">
+        <div>
+          <h3>WordWhizzy</h3>
+          <ul>
+            <li>
+              <a href="./intro.html"
+                ><i class="fas fa-info-circle"></i> Giới thiệu</a
+              >
+            </li>
+            <li>
+              <a href="./danhgia.html"><i class="fas fa-edit"></i>Đánh giá</a>
+            </li>
+            <li>
+              <a href="./support.html"
+                ><i class="fas fa-question-circle"></i> Hỗ trợ</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3>Thông tin:</h3>
+          <ul>
+            <li>
+              <a href="#!"><i class="fas fa-phone"></i> +84123456789</a>
+            </li>
+            <li>
+              <a href="#!"
+                ><i class="fas fa-envelope"></i> wordwhizzy8888@gmail.com</a
+              >
+            </li>
+            <li>
+              <a href="#!"
+                ><i class="fas fa-map-marker-alt"></i> Xã Trưng Trắc, Huyện Văn
+                Lâm, Tỉnh Hưng Yên</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3>Kết nối</h3>
+          <ul class="social-links">
+            <li>
+              <a href="#!"><i class="fab fa-tiktok"></i> TikTok</a>
+            </li>
+            <li>
+              <a href="#!"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </li>
+            <li>
+              <a href="#!"><i class="fab fa-instagram"></i> Instagram</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">© 2025 WordWhizzy. All rights reserved.</div>
+    </footer>
+    
+    <script>
+      // This script is no longer needed for the new header design, 
+      // but is kept in case other elements on the page rely on it.
+    </script>
+  </body>
+</html>

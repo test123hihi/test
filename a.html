@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trò chuyện với AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* CSS tùy chỉnh */
+        body {
+            background-color: #f7f7f7; /* Nền trắng ngà */
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Thanh tiêu đề cố định */
+        .header {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Biểu tượng mũi tên quay lại */
+        .back-btn-icon {
+            font-size: 1.5rem;
+            color: #87ceeb; /* Xanh dương nhạt */
+            transition: transform 0.2s;
+        }
+
+        .back-btn-icon:hover {
+            transform: scale(1.1);
+        }
+
+        /* Biểu tượng micro */
+        .microphone-btn {
+            background-color: #87ceeb; /* Xanh dương nhạt */
+            transition: background-color 0.2s, transform 0.2s;
+        }
+
+        .microphone-btn:hover {
+            background-color: #71b8d6;
+            transform: scale(1.05);
+        }
+
+        .microphone-icon {
+            color: #fff;
+        }
+
+        /* Hoạt ảnh cho biểu tượng micro khi đang lắng nghe */
+        .pulse-animation {
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(135, 206, 235, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 20px rgba(135, 206, 235, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(135, 206, 235, 0);
+            }
+        }
+
+        /* Kiểu tin nhắn trò chuyện */
+        .message-bubble {
+            max-width: 80%;
+            padding: 1rem;
+            border-radius: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .ai-bubble {
+            background-color: #f0f8ff; /* Màu xanh nhạt */
+            color: #333;
+            border-bottom-left-radius: 0;
+            margin-right: auto;
+        }
+
+        .user-bubble {
+            background-color: #87ceeb; /* Màu xanh dương nhạt */
+            color: white;
+            border-bottom-right-radius: 0;
+            margin-left: auto;
+        }
+
+        /* Kiểu nút bấm */
+        .btn {
+            padding: 0.75rem 2rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            transition: background-color 0.2s, transform 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background-color: #87ceeb;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #71b8d6;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: #87ceeb;
+            border: 2px solid #87ceeb;
+        }
+
+        .btn-secondary:hover {
+            background-color: #f0f8ff;
+            transform: translateY(-2px);
+        }
+
+        /* Ẩn các phần tử ban đầu */
+        #chat-container, #microphone-container {
+            display: none;
+        }
+    </style>
+</head>
+<body class="bg-white">
+
+    <header class="header fixed top-0 left-0 right-0 z-50 bg-white p-4">
+        <a href="study-options.html" class="inline-block">
+            <i class="fas fa-arrow-left back-btn-icon"></i>
+        </a>
+    </header>
+
+    <main class="flex flex-col items-center justify-center p-4 pt-20 pb-20">
+
+        <div id="intro-container" class="flex flex-col items-center text-center max-w-lg mx-auto p-6 rounded-lg">
+            <h1 class="text-3xl font-bold text-gray-800 mb-4">Chào mừng đến với cuộc trò chuyện AI</h1>
+            <div id="intro-text" class="text-gray-600 mb-6">
+                </div>
+            <div class="flex space-x-4">
+                <button id="translate-btn" class="btn btn-secondary">Dịch sang Tiếng Việt</button>
+                <button id="ready-btn" class="btn btn-primary">Sẵn sàng</button>
+            </div>
+        </div>
+
+        <div id="chat-container" class="w-full max-w-2xl px-4 py-8 flex flex-col space-y-4">
+            </div>
+
+    </main>
+
+    <div id="microphone-container" class="fixed bottom-0 left-0 right-0 p-4 flex justify-center z-50">
+        <button id="microphone-btn" class="microphone-btn w-16 h-16 rounded-full flex items-center justify-center shadow-lg">
+            <i class="fas fa-microphone microphone-icon text-2xl"></i>
+        </button>
+    </div>
+
+    <script>
+        // Lấy các phần tử DOM cần thiết
+        const introContainer = document.getElementById('intro-container');
+        const introText = document.getElementById('intro-text');
+        const translateBtn = document.getElementById('translate-btn');
+        const readyBtn = document.getElementById('ready-btn');
+        const chatContainer = document.getElementById('chat-container');
+        const microphoneContainer = document.getElementById('microphone-container');
+        const microphoneBtn = document.getElementById('microphone-btn');
+
+        // Khai báo các biến và hằng số
+        const API_URL = 'https://api-alpha-six-99.vercel.app/api/chat';
+        
+        let questions = [
+            'What is your name?',
+            'How old are you?',
+            'Where are you from?'
+        ];
+        let currentQuestionIndex = 0;
+        let isListening = false;
+        let isTranslated = false;
+        let recognition = null;
+        let isProcessing = false;
+
+        // Nội dung giới thiệu ban đầu
+        const introContent = {
+            en: "Hi there! I am your personal AI assistant. Let's start a small conversation. When you are ready, please press the 'Ready' button below.",
+            vi: "Xin chào! Tôi là trợ lý AI cá nhân của bạn. Chúng ta hãy bắt đầu một cuộc trò chuyện nhỏ. Khi bạn sẵn sàng, hãy nhấn nút 'Sẵn sàng' ở phía dưới."
+        };
+
+        // Hàm để tạo tin nhắn mới và thêm vào khung trò chuyện
+        function addMessage(sender, text) {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.classList.add('flex', 'flex-col');
+            const messageBubble = document.createElement('div');
+            messageBubble.classList.add('message-bubble', 'mb-2');
+
+            if (sender === 'ai') {
+                messageWrapper.classList.add('items-start');
+                messageBubble.classList.add('ai-bubble', 'shadow-sm');
+            } else {
+                messageWrapper.classList.add('items-end');
+                messageBubble.classList.add('user-bubble', 'shadow-md');
+            }
+
+            messageBubble.innerText = text;
+            messageWrapper.appendChild(messageBubble);
+            chatContainer.appendChild(messageWrapper);
+            
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // <<< ĐÃ XÓA: Toàn bộ hàm speak() đã được xóa vì không cần đọc audio nữa.
+
+        // Hàm xử lý việc hiển thị và nói câu hỏi tiếp theo
+        function askNextQuestion() {
+            if (currentQuestionIndex < questions.length) {
+                const question = questions[currentQuestionIndex];
+                addMessage('ai', question);
+                // <<< ĐÃ XÓA: Lời gọi hàm speak(question)
+                currentQuestionIndex++;
+                microphoneBtn.disabled = false;
+            } else {
+                addMessage('ai', 'Cuộc trò chuyện đã kết thúc. Cảm ơn bạn đã tham gia!');
+                // <<< ĐÃ XÓA: Lời gọi hàm speak()
+                microphoneBtn.disabled = true;
+                if (recognition) {
+                    recognition.stop();
+                }
+            }
+        }
+
+        async function getAIComment(userAnswer, currentQuestion) {
+            try {
+                addMessage('ai', 'Đang phân tích...');
+                isProcessing = true;
+                microphoneBtn.classList.add('pulse-animation');
+                microphoneBtn.disabled = true;
+
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        question: currentQuestion,
+                        answer: userAnswer 
+                    }),
+                });
+
+                if (!response.ok) throw new Error(`Lỗi HTTP: ${response.status}`);
+
+                const data = await response.json();
+                
+                const processingMessage = chatContainer.querySelector('.ai-bubble:last-child');
+                if (processingMessage && processingMessage.innerText.includes('Đang phân tích')) {
+                    chatContainer.removeChild(processingMessage.parentElement);
+                }
+
+                if (data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) {
+                    const comment = data.choices[0].message.content;
+                    addMessage('ai', comment);
+                } else {
+                    addMessage('ai', 'Xin lỗi, tôi không thể đưa ra nhận xét lúc này. API trả về phản hồi không hợp lệ.');
+                    console.error('Phản hồi không hợp lệ từ API:', data);
+                }
+
+                // <<< THAY ĐỔI QUAN TRỌNG: Gọi câu hỏi tiếp theo ngay sau khi nhận và hiển thị phân tích
+                // mà không cần chờ audio đọc xong.
+                setTimeout(askNextQuestion, 500); // Thêm một khoảng chờ ngắn để người dùng kịp đọc
+                
+            } catch (error) {
+                console.error('Lỗi khi gọi API:', error);
+                const processingMessage = chatContainer.querySelector('.ai-bubble:last-child');
+                if (processingMessage && processingMessage.innerText.includes('Đang phân tích')) {
+                    chatContainer.removeChild(processingMessage.parentElement);
+                }
+                addMessage('ai', 'Xin lỗi, đã xảy ra lỗi. Vui lòng thử lại sau.');
+                askNextQuestion(); // Vẫn hỏi câu tiếp theo dù có lỗi
+            } finally {
+                isProcessing = false;
+                microphoneBtn.classList.remove('pulse-animation');
+            }
+        }
+
+        // Khởi tạo Web Speech API và các sự kiện
+        window.onload = function() {
+            if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+                alert('Rất tiếc, trình duyệt của bạn không hỗ trợ nhận dạng giọng nói.');
+                microphoneBtn.disabled = true;
+                return;
+            }
+
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = 'en-US';
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                addMessage('user', transcript);
+                const currentQuestion = questions[currentQuestionIndex - 1];
+                getAIComment(transcript, currentQuestion); 
+            };
+
+            recognition.onstart = () => {
+                isListening = true;
+                microphoneBtn.classList.add('pulse-animation');
+                console.log('Đang lắng nghe...');
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                microphoneBtn.classList.remove('pulse-animation');
+                console.log('Ngừng lắng nghe.');
+            };
+
+            recognition.onerror = (event) => {
+                console.error('Lỗi nhận dạng giọng nói:', event.error);
+                isListening = false;
+                microphoneBtn.classList.remove('pulse-animation');
+                if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+                    addMessage('ai', 'Vui lòng cho phép trình duyệt sử dụng microphone để tiếp tục.');
+                }
+            };
+            
+            introText.innerText = introContent.en;
+            // <<< ĐÃ XÓA: Lời gọi hàm speak()
+        };
+        
+        readyBtn.addEventListener('click', () => {
+            introContainer.style.display = 'none';
+            chatContainer.style.display = 'flex';
+            microphoneContainer.style.display = 'flex';
+            addMessage('ai', 'Xin chào! Hãy bắt đầu với câu hỏi đầu tiên của tôi.');
+            
+            // <<< ĐÃ XÓA: Lời gọi hàm speechSynthesis.cancel()
+            
+            askNextQuestion();
+        });
+
+        translateBtn.addEventListener('click', () => {
+            if (!isTranslated) {
+                introText.innerText = introContent.vi;
+                translateBtn.innerText = 'Xem bản gốc (Tiếng Anh)';
+            } else {
+                introText.innerText = introContent.en;
+                translateBtn.innerText = 'Dịch sang Tiếng Việt';
+            }
+            isTranslated = !isTranslated;
+        });
+
+        microphoneBtn.addEventListener('click', () => {
+            if (isListening) {
+                recognition.stop();
+            } else {
+                if (!isProcessing) {
+                    recognition.start();
+                } else {
+                    console.warn('Đang xử lý phản hồi từ AI, không thể bắt đầu lắng nghe.');
+                }
+            }
+        });
+
+    </script>
+</body>
+</html>

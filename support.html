@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WordWhizzy - Hỗ trợ</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+    /* Chỉ áp dụng cho thiết bị cảm ứng để không ảnh hưởng keyboard users */
+@media (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent; /* iOS, Chrome mobile */
+    -webkit-touch-callout: none;              /* tắt menu giữ chạm (iOS) nếu cần */
+  }
+}
+
+      :root {
+        --primary-color: #60a5fa;
+        --secondary-color: #2563eb;
+        --background: #f0f4f8;
+        --card-bg: #ffffff;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+        --shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        --glow: 0 0 12px rgba(37, 99, 235, 0.3);
+        --highlight-color: #f59e0b;
+        --accent: #22c55e;
+        --border-color: #e2e8f0;
+        --header-height: 60px;
+        --facebook-color: #1877f2;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background: var(--background);
+        color: var(--text-primary);
+        line-height: 1.6;
+        min-height: 100vh;
+        padding-top: var(--header-height);
+        padding-bottom: 100px;
+        overflow-x: hidden;
+      }
+
+      /* Header styles */
+      .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: var(--header-height);
+        background: var(--card-bg);
+        box-shadow: var(--shadow);
+        z-index: 1200;
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .header .logo {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+
+      .header .logo img {
+        width: 55px;
+        flex-shrink: 0;
+      }
+
+      .header .logo-text {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary-color);
+      }
+
+      .header-nav {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+      }
+
+      .header-nav a,
+      .header-nav .header-cta {
+        text-decoration: none;
+        color: var(--text-primary);
+        font-weight: 400;
+        font-size: 0.95rem;
+        padding: 0.5rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        border-radius: 8px;
+        transition: background 0.3s, color 0.3s;
+      }
+
+      .header-nav a i,
+      .header-nav .header-cta i {
+        font-size: 1.1rem;
+        color: var(--primary-color);
+        width: 20px;
+        text-align: center;
+      }
+
+      .header-nav a:hover,
+      .header-nav .header-cta:hover {
+        background: var(--primary-color);
+        color: var(--card-bg);
+      }
+
+      .header-nav a:hover i,
+      .header-nav .header-cta:hover i {
+        color: var(--card-bg);
+      }
+      
+      .header-controls {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+      }
+      
+      /* Hide auth-icon-btn on desktop by default */
+      .auth-icon-btn {
+          display: none;
+      }
+
+      /* Auth buttons */
+      .auth-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.4rem 1rem;
+        text-decoration: none;
+        font-family: "Poppins", sans-serif;
+        font-size: 0.85rem;
+        font-weight: 500;
+        border-radius: 20px;
+        transition: background 0.2s ease, transform 0.2s ease,
+          box-shadow 0.2s ease;
+        height: 32px;
+        min-width: 80px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .signin-btn {
+        background: transparent;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+      }
+
+      .signin-btn:hover,
+      .signin-btn:active {
+        background: var(--primary-color);
+        color: var(--card-bg);
+        border-color: var(--primary-color);
+        transform: scale(1.05);
+        box-shadow: var(--glow);
+      }
+
+      .signup-btn {
+        background: var(--primary-color);
+        color: var(--card-bg);
+      }
+
+      .signup-btn:hover,
+      .signup-btn:active {
+        background: var(--secondary-color);
+        transform: scale(1.05);
+        box-shadow: var(--glow);
+      }
+
+      /* Responsive header for mobile */
+      @media (max-width: 768px) {
+        .header {
+          padding: 0 0.5rem; 
+        }
+        
+        .header .logo {
+          display: none; /* Hide logo on mobile */
+        }
+
+        .header-nav {
+          flex-grow: 1; /* Make nav take up available space */
+          display: flex;
+          justify-content: space-around; /* Spread icons evenly */
+          gap: 0;
+        }
+
+        .header-nav a {
+          padding: 0.5rem;
+          font-size: 1.3rem; /* Make icons slightly larger */
+        }
+
+        .header-nav a span {
+          display: none; /* Hide text next to icons */
+        }
+        
+        .header-nav a i {
+          width: auto;
+        }
+        
+        /* Hide desktop auth buttons */
+        .auth-btn {
+          display: none;
+        }
+
+        /* Show and style mobile auth icon */
+        .auth-icon-btn {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.6rem; /* Control icon size */
+          color: var(--primary-color);
+          text-decoration: none;
+          padding: 0.5rem;
+          transition: color 0.3s;
+        }
+        
+        .auth-icon-btn:hover {
+          color: var(--secondary-color);
+        }
+
+        .header-controls {
+            gap: 0;
+        }
+      }
+      
+      @media (max-width: 480px) {
+        .header-nav a {
+          padding: 0.5rem 0.4rem; 
+          font-size: 1.2rem; /* Slightly smaller icons */
+        }
+        
+        .auth-icon-btn {
+          font-size: 1.5rem;
+        }
+      }
+
+      /* Support form styles */
+      .section {
+        position: relative;
+        max-width: 550px;
+        margin: 4rem auto;
+        padding: 0 1rem;
+        z-index: 1;
+      }
+
+      .section h1 {
+        font-size: 2rem;
+        font-weight: 600;
+        color: var(--primary-color);
+        margin-bottom: 1rem;
+        text-align: center;
+      }
+
+      .section p {
+        font-size: 1rem;
+        color: var(--text-secondary);
+        margin-bottom: 1.5rem;
+        text-align: center;
+      }
+
+      .support-form {
+        background: var(--card-bg);
+        border: 2px solid var(--primary-color);
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: var(--shadow);
+        animation: fadeInUp 0.5s ease-out;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .support-form:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+      }
+
+      .form-group {
+        position: relative;
+        margin-bottom: 1.5rem;
+      }
+
+      .form-group label {
+        position: absolute;
+        top: 0.8rem;
+        left: 2.5rem;
+        color: var(--text-secondary);
+        font-size: 1.1rem;
+        transition: all 0.3s ease;
+        pointer-events: none;
+        z-index: 3;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 0.8rem 1rem 0.8rem 2.5rem;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 1.1rem;
+        background: var(--card-bg);
+        color: var(--text-primary);
+        transition: all 0.3s ease;
+        position: relative;
+        z-index: 1;
+      }
+
+      .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+      }
+
+      .form-group input:focus,
+      .form-group textarea:focus {
+        outline: none;
+        border-color: var(--secondary-color);
+        box-shadow: var(--glow);
+      }
+
+      .form-group input:focus + label,
+      .form-group input:not(:placeholder-shown) + label,
+      .form-group textarea:focus + label,
+      .form-group textarea:not(:placeholder-shown) + label {
+        top: -0.8rem;
+        left: 1rem;
+        font-size: 0.9rem;
+        color: var(--secondary-color);
+        background: var(--card-bg);
+        padding: 0 0.3rem;
+        transform: scale(0.95);
+        z-index: 3;
+      }
+
+      .form-group i {
+        position: absolute;
+        top: 0.95rem;
+        left: 0.9rem;
+        color: var(--text-secondary);
+        font-size: 1.2rem;
+        transition: color 0.3s ease;
+        z-index: 2;
+      }
+
+      .form-group input:focus ~ i,
+      .form-group textarea:focus ~ i {
+        color: var(--secondary-color);
+      }
+
+      .form-group::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(
+          circle at center,
+          var(--primary-color) 0%,
+          transparent 70%
+        );
+        opacity: 0;
+        border-radius: 8px;
+        transition: opacity 0.3s ease;
+        z-index: 0;
+      }
+
+      .form-group input:focus::after,
+      .form-group textarea:focus::after {
+        opacity: 0.1;
+      }
+
+      .btn {
+        padding: 0.8rem;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        background: var(--secondary-color);
+        color: var(--card-bg);
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .btn:hover {
+        background: linear-gradient(
+          90deg,
+          var(--secondary-color),
+          var(--primary-color)
+        );
+        transform: scale(1.05);
+        box-shadow: var(--glow);
+      }
+
+      .btn::after {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.4s ease, height 0.4s ease;
+      }
+
+      .btn:active::after {
+        width: 200px;
+        height: 200px;
+      }
+
+      /* Floating shapes */
+      .floating-shapes {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .shape {
+        position: absolute;
+        background: var(--primary-color);
+        opacity: 0.3;
+        border-radius: 50%;
+        animation: float 15s infinite ease-in-out;
+      }
+
+      .shape:nth-child(1) {
+        width: 100px;
+        height: 100px;
+        top: 20%;
+        left: 10%;
+        animation-duration: 12s;
+      }
+
+      .shape:nth-child(2) {
+        width: 80px;
+        height: 80px;
+        top: 60%;
+        right: 15%;
+        animation-duration: 18s;
+        background: var(--secondary-color);
+      }
+
+      .shape:nth-child(3) {
+        width: 120px;
+        height: 120px;
+        bottom: 10%;
+        left: 30%;
+        animation-duration: 14s;
+      }
+
+      /* Footer styles */
+      .footer {
+        background: var(--card-bg);
+        padding: 3rem 1rem;
+        border-top: 1px solid #e2e8f0;
+      }
+
+      .footer-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+      }
+
+      .footer h3 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin-bottom: 0.8rem;
+      }
+
+      .footer ul {
+        list-style: none;
+      }
+
+      .footer ul li {
+        margin-bottom: 0.6rem;
+      }
+
+      .footer ul a {
+        color: var(--text-secondary);
+        text-decoration: none;
+        font-size: 0.95rem;
+        transition: color 0.3s;
+      }
+
+      .footer ul a:hover {
+        color: var(--primary-color);
+      }
+
+      .footer .social-links a {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .footer .social-links i {
+        font-size: 1.1rem;
+      }
+
+      .footer .copyright {
+        text-align: center;
+        margin-top: 2rem;
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+      }
+
+      /* Animations */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes float {
+        0% {
+          transform: translate(0, 0) rotate(0);
+        }
+        25% {
+          transform: translate(20px, -30px) rotate(45deg);
+        }
+        50% {
+          transform: translate(-20px, 20px) rotate(90deg);
+        }
+        75% {
+          transform: translate(30px, -20px) rotate(135deg);
+        }
+        100% {
+          transform: translate(0, 0) rotate(0);
+        }
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 768px) {
+        .section {
+          margin: 3rem auto;
+        }
+
+        .support-form {
+          padding: 1rem;
+          max-width: 90%;
+        }
+
+        .form-group input,
+        .form-group textarea {
+          font-size: 1rem;
+          padding: 0.7rem 1rem 0.7rem 2.4rem;
+        }
+
+        .form-group label {
+          font-size: 1rem;
+          top: 0.7rem;
+          left: 2.4rem;
+        }
+
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label,
+        .form-group textarea:focus + label,
+        .form-group textarea:not(:placeholder-shown) + label {
+          top: -0.7rem;
+          font-size: 0.85rem;
+        }
+
+        .form-group i {
+          top: 0.9rem;
+          left: 0.8rem;
+        }
+
+        .btn {
+          padding: 0.7rem;
+          font-size: 1rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .header .logo img {
+          width: 45px;
+        }
+
+        .header .logo-text {
+          font-size: 1rem;
+        }
+
+        .section h1 {
+          font-size: 1.8rem;
+        }
+
+        .section p {
+          font-size: 0.95rem;
+        }
+
+        .support-form {
+          padding: 0.8rem;
+        }
+
+        .form-group input,
+        .form-group textarea {
+          font-size: 0.95rem;
+          padding: 0.65rem 1rem 0.65rem 2.2rem;
+        }
+
+        .form-group label {
+          font-size: 0.95rem;
+          top: 0.65rem;
+          left: 2.2rem;
+        }
+
+        .form-group input:focus + label,
+        .form-group input:not(:placeholder-shown) + label,
+        .form-group textarea:focus + label,
+        .form-group textarea:not(:placeholder-shown) + label {
+          top: -0.65rem;
+          font-size: 0.8rem;
+          left: 0.9rem;
+        }
+
+        .form-group i {
+          top: 0.85rem;
+          left: 0.7rem;
+          font-size: 1.1rem;
+        }
+
+        .btn {
+          padding: 0.65rem;
+          font-size: 0.9rem;
+        }
+
+        .footer-container {
+          grid-template-columns: 1fr;
+          text-align: center;
+        }
+
+        .footer ul a {
+          font-size: 0.9rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="header">
+      <div class="logo">
+        <a
+          href="./index.html"
+          style="display: flex; align-items: center; text-decoration: none"
+        >
+          <img src="f.png" alt="Smart Lex Logo" />
+          <span class="logo-text">WordWhizzy</span>
+        </a>
+      </div>
+      <nav class="header-nav" id="headerNav">
+        <a href="./index.html"><i class="fas fa-home"></i><span></span></a>
+        <a href="./main/vocabulary.html"
+          ><i class="fas fa-book"></i><span> </span></a
+        >
+        <a href="./tuhoc.html"
+          ><i class="fas fa-route"></i><span> </span></a
+        >
+        <a href="./muahang.html"
+          ><i class="fas fa-shopping-cart"></i><span> </span></a
+        >
+             <a href="./more.html"
+          ><i class="fas fa-ellipsis-h"></i><span></span></a
+        >
+      </nav>
+      <div class="header-controls">
+        <a class="auth-btn signin-btn" href="login.html?mode=signin"
+          >Đăng nhập</a
+        >
+        <a class="auth-btn signup-btn" href="login.html?mode=signup">Đăng ký</a>
+        
+        <a href="login.html?mode=signin" class="auth-icon-btn">
+            <i class="fas fa-user-circle"></i>
+        </a>
+      </div>
+    </header>
+
+    <main>
+      <section class="section">
+        <div class="floating-shapes">
+          <div class="shape"></div>
+          <div class="shape"></div>
+          <div class="shape"></div>
+        </div>
+        <h1>Yêu cầu hỗ trợ</h1>
+        <p>
+          Vui lòng điền thông tin bên dưới để đội ngũ WordWhizzy có thể hỗ trợ
+          bạn nhanh chóng.
+        </p>
+        <form class="support-form">
+          <div class="form-group">
+            <input type="text" id="name" placeholder=" " required />
+            <label for="name">Họ và tên</label>
+            <i class="fas fa-user"></i>
+          </div>
+          <div class="form-group">
+            <input type="email" id="email" placeholder=" " required />
+            <label for="email">Email</label>
+            <i class="fas fa-envelope"></i>
+          </div>
+          <div class="form-group">
+            <textarea id="reason" placeholder=" " required></textarea>
+            <label for="reason">Lý do hỗ trợ</label>
+            <i class="fas fa-comment"></i>
+          </div>
+          <button type="submit" class="btn">
+            <i class="fas fa-paper-plane"></i> Gửi yêu cầu
+          </button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-container">
+        <div>
+          <h3>WordWhizzy</h3>
+          <ul>
+            <li>
+              <a href="./intro.html"
+                ><i class="fas fa-info-circle"></i> Giới thiệu</a
+              >
+            </li>
+            <li>
+              <a href="./danhgia.html"> <i class="fas fa-edit"></i>Đánh giá</a>
+            </li>
+            <li>
+              <a href="./support.html"
+                ><i class="fas fa-question-circle"></i> Hỗ trợ</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3>Thông tin:</h3>
+          <ul>
+            <li>
+              <a href="#!"><i class="fas fa-phone"></i> +84123456789</a>
+            </li>
+            <li>
+              <a href="#!"
+                ><i class="fas fa-envelope"></i> wordwhizzy8888@gmail.com</a
+              >
+            </li>
+            <li>
+              <a href="#!"
+                ><i class="fas fa-map-marker-alt"></i> Xã Trưng Trắc, Huyện Văn
+                Lâm, Tỉnh Hưng Yên</a
+              >
+            </li>
+          </ul>
+        </div>
+        <div>
+          <h3>Kết nối</h3>
+          <ul class="social-links">
+            <li>
+              <a href="#!"><i class="fab fa-tiktok"></i> TikTok</a>
+            </li>
+            <li>
+              <a href="#!"><i class="fab fa-linkedin"></i> LinkedIn</a>
+            </li>
+            <li>
+              <a href="#!"><i class="fab fa-instagram"></i> Instagram</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+      <div class="copyright">© 2025 WordWhizzy. All rights reserved.</div>
+    </footer>
+
+    <script>
+      // Form handling
+      document.addEventListener("DOMContentLoaded", () => {
+        // No header script needed for the new design
+
+        const supportForm = document.querySelector(".support-form");
+
+        supportForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          const name = document.getElementById("name").value.trim();
+          const email = document.getElementById("email").value.trim();
+          const reason = document.getElementById("reason").value.trim();
+
+          if (!name || name.length < 2) {
+            alert("Họ và tên phải tối thiểu 2 ký tự!");
+            return;
+          }
+
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            alert("Vui lòng nhập email hợp lệ!");
+            return;
+          }
+
+          if (!reason || reason.length < 10) {
+            alert("Lý do hỗ trợ phải tối thiểu 10 ký tự!");
+            return;
+          }
+
+          alert("Cảm ơn bạn đã gửi yêu cầu! Chúng tôi sẽ phản hồi sớm nhất.");
+          supportForm.reset();
+        });
+      });
+    </script>
+  </body>
+</html>

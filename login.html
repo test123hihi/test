@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Đăng nhập WordWhizzy</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+    
+    /* Chỉ áp dụng cho thiết bị cảm ứng để không ảnh hưởng keyboard users */
+@media (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent; /* iOS, Chrome mobile */
+    -webkit-touch-callout: none;              /* tắt menu giữ chạm (iOS) nếu cần */
+  }
+}
+
+      :root {
+        /* Colors - Đồng bộ với index (5).html */
+        --primary-color: #4285F4; /* Google Blue */
+        --secondary-color: #1a73e8; /* Đậm hơn primary để tạo điểm nhấn */
+        --background: #f0f4f8; /* Nền nhẹ nhàng */
+        --card-bg: #ffffff; /* Nền của card/form */
+        --text-primary: #2d3748; /* Text chính */
+        --text-secondary: #64748b; /* Text phụ */
+        --border-color: #e2e8f0; /* Màu border nhẹ */
+        --button-shadow: 0 4px 15px rgba(0, 0, 0, 0.1); /* Bóng cho nút */
+        --glow: 0 0 25px rgba(37, 99, 235, 0.4); /* Hiệu ứng glow */
+      }
+
+      /* General styles */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      body {
+        background: var(--background);
+        color: var(--text-primary);
+        line-height: 1.6;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .login-container {
+        background: var(--card-bg);
+        border-radius: 15px;
+        box-shadow: var(--shadow); /* Sử dụng shadow đồng bộ */
+        padding: 40px;
+        width: 100%;
+        max-width: 400px; /* Nhỏ gọn hơn vì ít nội dung hơn */
+        text-align: center;
+        border: 1px solid var(--border-color);
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Hiệu ứng nền nhẹ cho container */
+      .login-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(240, 244, 248, 0.2), rgba(255, 255, 255, 0));
+        z-index: 0;
+        pointer-events: none;
+      }
+
+      .login-container h2 {
+        font-size: 2rem;
+        color: var(--text-primary);
+        margin-bottom: 30px; /* Khoảng cách lớn hơn */
+        font-weight: 700;
+        position: relative;
+        z-index: 1;
+      }
+
+      .login-container h2 span {
+        color: var(--primary-color);
+      }
+
+      .btn {
+        display: block;
+        width: 100%;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+        box-shadow: var(--button-shadow);
+        z-index: 1;
+        position: relative;
+      }
+
+      .btn-google {
+        background: #db4437; /* Màu Google đỏ */
+        color: var(--card-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+
+      .btn-google i {
+        font-size: 1.2rem;
+      }
+
+      .btn-google:hover {
+        background: #c33d31; /* Tông đỏ đậm hơn khi hover */
+        transform: translateY(-2px);
+        box-shadow: 0 0 0 3px rgba(219, 68, 55, 0.2); /* Glow nhẹ cho Google */
+      }
+
+      .error-message {
+        color: #e74c3c; /* Màu đỏ cho lỗi */
+        font-size: 0.85rem;
+        margin-top: 15px; /* Khoảng cách trên */
+        margin-bottom: 0;
+        display: none; /* Ẩn mặc định */
+        text-align: center;
+        z-index: 1;
+        position: relative;
+      }
+
+      /* Responsive adjustments */
+      @media (max-width: 480px) {
+        .login-container {
+          padding: 30px 25px;
+          margin: 0 15px;
+        }
+        .login-container h2 {
+          font-size: 1.8rem;
+          margin-bottom: 25px;
+        }
+        .btn {
+          padding: 10px 15px;
+          font-size: 1rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="login-container">
+      <h2>Chào mừng bạn đến với <span>WordWhizzy</span>!</h2>
+      <p id="loginErrorMessage" class="error-message"></p>
+      <button class="btn btn-google" id="googleSignInBtn">
+        <i class="fab fa-google"></i> Đăng nhập với Google
+      </button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script>
+      // ===================================================================
+      // == CẤU HÌNH FIREBASE - QUAN TRỌNG! ==
+      // == TODO: THAY THẾ CÁC GIÁ TRỊ DƯỚI ĐÂY BẰNG CẤU HÌNH FIREBASE CỦA BẠN ==
+      // ===================================================================
+      const firebaseConfig = {
+        apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
+        authDomain: "wordwhizzy.firebaseapp.com",
+        projectId: "wordwhizzy",
+        storageBucket: "wordwhizzy.firebasestorage.app",
+        messagingSenderId: "179575783469",
+        appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4",
+        measurementId: "G-XPFQ8PCTRE",
+      };
+
+      // Khởi tạo Firebase
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+
+      const auth = firebase.auth();
+      const db = firebase.firestore(); // Khởi tạo Firestore để lưu thông tin người dùng
+
+      const googleSignInBtn = document.getElementById("googleSignInBtn");
+      const loginErrorMessage = document.getElementById("loginErrorMessage");
+
+      // Handle Google Sign-in
+      googleSignInBtn.addEventListener("click", () => {
+        loginErrorMessage.style.display = "none"; // Ẩn thông báo lỗi cũ
+        const provider = new firebase.auth.GoogleAuthProvider();
+        auth.signInWithPopup(provider)
+          .then((result) => {
+            console.log("Đăng nhập Google thành công:", result.user);
+            const user = result.user;
+
+            // Kiểm tra và lưu thông tin người dùng vào Firestore
+            db.collection("users").doc(user.uid).get().then((docSnap) => {
+              if (!docSnap.exists) {
+                // Nếu người dùng chưa có trong Firestore, thêm mới
+                db.collection("users").doc(user.uid).set({
+                  displayName: user.displayName,
+                  email: user.email,
+                  avatarURL: user.photoURL,
+                  createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                  lastLogin: firebase.firestore.FieldValue.serverTimestamp() // Thêm thời gian đăng nhập
+                }, { merge: true }); // 'merge: true' để tránh ghi đè nếu tài liệu đã tồn tại nhưng thiếu trường
+              } else {
+                 // Nếu người dùng đã tồn tại, cập nhật thời gian đăng nhập
+                 db.collection("users").doc(user.uid).update({
+                   lastLogin: firebase.firestore.FieldValue.serverTimestamp()
+                 });
+              }
+            });
+
+            window.location.href = "index.html"; // Chuyển hướng sau khi đăng nhập thành công
+          })
+          .catch((error) => {
+            loginErrorMessage.textContent = "Lỗi đăng nhập Google: " + getVietnameseErrorMessage(error.code);
+            loginErrorMessage.style.display = "block";
+            console.error("Lỗi đăng nhập Google:", error.code, error.message);
+          });
+      });
+
+      // Helper function to translate Firebase auth errors to Vietnamese
+      function getVietnameseErrorMessage(errorCode) {
+        switch (errorCode) {
+          case "auth/popup-closed-by-user":
+            return "Bạn đã đóng cửa sổ đăng nhập.";
+          case "auth/cancelled-popup-request":
+            return "Yêu cầu đăng nhập đã bị hủy.";
+          case "auth/operation-not-allowed":
+            return "Đăng nhập Google chưa được bật trong cài đặt Firebase của bạn.";
+          case "auth/network-request-failed":
+            return "Lỗi mạng. Vui lòng kiểm tra kết nối internet của bạn.";
+          default:
+            return "Đã xảy ra lỗi không xác định. Vui lòng thử lại.";
+        }
+      }
+
+      // Kiểm tra trạng thái đăng nhập khi tải trang
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          // Nếu người dùng đã đăng nhập, chuyển hướng ngay lập tức
+          window.location.href = "index.html";
+        }
+      });
+    </script>
+  </body>
+</html>

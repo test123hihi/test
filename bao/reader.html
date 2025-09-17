@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Trình Đọc Báo AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: white; /* Changed to white */
+      }
+      .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        z-index: 100;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s, visibility 0.3s;
+      }
+      .modal-backdrop.visible {
+        opacity: 1;
+        visibility: visible;
+      }
+      .modal-content {
+        background-color: white;
+        border-radius: 1.25rem;
+        box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.2);
+        width: 90%;
+        max-width: 500px;
+        transform: translateY(20px) scale(0.95);
+        transition: all 0.3s ease;
+        overflow: hidden;
+      }
+      .modal-backdrop.visible .modal-content {
+        transform: translateY(0) scale(1);
+      }
+
+      /* Styles for questions */
+      .questions-container {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px dashed #cbd5e1;
+      }
+      .question-block {
+        background-color: #f8fafc; /* Keep light background for readability within the block */
+        border: 1px solid #e2e8f0;
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      }
+      .question-text {
+        font-weight: 600;
+        font-size: 1.15rem;
+        color: #1a202c;
+        margin-bottom: 1rem;
+      }
+      .options-list {
+        list-style: none;
+        padding: 0;
+        margin-top: 0.75rem;
+      }
+      .option-item {
+        margin-bottom: 0.5rem;
+      }
+      .option-label {
+        display: block;
+        padding: 0.75rem 1rem;
+        background-color: #ffffff;
+        border: 1px solid #cbd5e1;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+      }
+      .option-label:hover {
+        background-color: #f0f4f8;
+        border-color: #94a3b8;
+      }
+      .option-label input[type="radio"] {
+        margin-right: 0.75rem;
+        accent-color: #2563eb;
+      }
+      .check-all-answers-btn {
+        background-color: #2563eb;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        border: none;
+        cursor: pointer;
+        margin-top: 1rem;
+        transition: background-color 0.2s ease;
+      }
+      .check-all-answers-btn:hover:not(:disabled) {
+        background-color: #1e40af;
+      }
+      .check-all-answers-btn:disabled {
+        background-color: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      .feedback-message {
+        margin-top: 0.75rem;
+        font-weight: 500;
+      }
+      .feedback-message.correct {
+        color: #10b981;
+      }
+      .feedback-message.incorrect {
+        color: #ef4444;
+      }
+      .correct-option-style {
+        background-color: #d1fae5 !important;
+        border-color: #34d399 !important;
+      }
+      .incorrect-option-style {
+        background-color: #fee2e2 !important;
+        border-color: #ef4444 !important;
+      }
+    </style>
+  </head>
+  <body class="text-slate-700">
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 shadow-sm">
+      <div
+        class="container mx-auto px-6 py-4 flex justify-between items-center"
+      >
+        <a
+          href="bao.html"
+          class="bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold rounded-full py-2 px-3 transition-transform hover:scale-105 flex items-center justify-center w-10 h-10"
+          title="Quay lại"
+        >
+          <i class="fas fa-arrow-left"></i>
+        </a>
+        <h1 class="text-xl font-bold text-slate-700 hidden md:block">
+          AI Reading Mode
+        </h1>
+        <div class="flex items-center gap-2">
+          <button
+            id="toggle-questions-visibility"
+            class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold rounded-full py-2 px-3 transition-transform hover:scale-105 w-10 h-10 flex items-center justify-center"
+            title="Ẩn/Hiện câu hỏi đọc hiểu"
+          >
+            <i class="fas fa-eye-slash"></i>
+          </button>
+          <a
+            id="vocab-link"
+            href="vocabulary.html"
+            class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold rounded-full py-2 px-3 transition-transform hover:scale-105 w-10 h-10 flex items-center justify-center"
+            title="Từ vựng"
+          >
+            <i class="fas fa-star"></i>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main class="container mx-auto p-6">
+      <div
+        class="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200"
+      >
+        <iframe id="article-frame" class="w-full h-screen border-0"></iframe>
+        <div id="questions-loader" class="text-center py-8 hidden">
+          <div
+            class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent text-blue-500"
+            role="status"
+          ></div>
+          <p class="mt-4 text-slate-500">Đang tạo câu hỏi đọc hiểu...</p>
+        </div>
+      </div>
+    </main>
+
+    <div id="translation-modal" class="modal-backdrop">
+      <div class="modal-content">
+        <div
+          class="p-6 bg-gradient-to-r from-blue-500 to-indigo-500 text-white flex justify-between items-center"
+        >
+          <h3 class="text-2xl font-bold flex items-center gap-3">
+            <i class="fas fa-magic-wand-sparkles"></i> Kết quả dịch
+          </h3>
+          <button
+            id="close-modal"
+            class="text-blue-200 hover:text-white text-3xl transition-transform hover:rotate-90"
+          >
+            &times;
+          </button>
+        </div>
+        <div id="modal-body" class="p-6">
+          <div id="modal-loader" class="text-center py-8">
+            <div
+              class="inline-block h-10 w-10 animate-spin rounded-full border-4 border-solid border-current border-r-transparent text-blue-500"
+              role="status"
+            ></div>
+            <p class="mt-4 text-slate-500">
+              AI đang phân tích, vui lòng chờ...
+            </p>
+          </div>
+          <div id="modal-result" class="hidden space-y-6">
+            <div>
+              <p
+                class="font-semibold text-slate-400 text-sm tracking-wider mb-1"
+              >
+                TỪ GỐC
+              </p>
+              <p
+                id="original-text"
+                class="text-4xl font-extrabold text-slate-800"
+              ></p>
+            </div>
+            <div class="flex items-center gap-4">
+              <p
+                id="ipa-text"
+                class="text-lg text-slate-500 bg-slate-100 px-3 py-1 rounded-md"
+              ></p>
+              <button
+                id="play-audio-btn"
+                class="text-blue-500 hover:text-blue-700 text-2xl transition-transform hover:scale-125"
+                title="Play audio"
+              >
+                <i class="fas fa-volume-up"></i>
+              </button>
+            </div>
+            <div>
+              <p
+                class="font-semibold text-slate-400 text-sm tracking-wider mb-1"
+              >
+                BẢN DỊCH
+              </p>
+              <div id="translated-texts" class="space-y-2"></div>
+            </div>
+          </div>
+        </div>
+        <div class="p-4 bg-slate-50">
+          <button
+            id="save-vocab-btn"
+            class="w-full text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg"
+          >
+            <i class="fas fa-save"></i> <span>Lưu từ vựng</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script type="module">
+      const firebaseConfig = {
+        apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
+        authDomain: "wordwhizzy.firebaseapp.com",
+        projectId: "wordwhizzy",
+        storageBucket: "wordwhizzy.firebasestorage.app",
+        messagingSenderId: "179575783469",
+        appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4",
+        measurementId: "G-XPFQ8PCTRE",
+      };
+
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      const db = firebase.firestore();
+      const auth = firebase.auth();
+
+      const saveVocabBtn = document.getElementById("save-vocab-btn");
+      const vocabLink = document.getElementById("vocab-link");
+
+      let currentUserId = null;
+
+      const urlParams = new URLSearchParams(window.location.search);
+      currentUserId = urlParams.get("uid");
+
+      if (currentUserId) {
+        vocabLink.href = `vocabulary.html?uid=${currentUserId}`;
+      } else {
+        vocabLink.href = `vocabulary.html`;
+      }
+
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          currentUserId = user.uid;
+          vocabLink.href = `vocabulary.html?uid=${currentUserId}`;
+        } else {
+          currentUserId = null;
+          vocabLink.href = `vocabulary.html`;
+        }
+      });
+
+      function showTranslationModal() {
+        const modalBackdrop = document.getElementById("translation-modal");
+        const modalLoader = document.getElementById("modal-loader");
+        const modalResult = document.getElementById("modal-result");
+
+        modalBackdrop.classList.add("visible");
+        modalLoader.style.display = "block";
+        modalResult.classList.add("hidden");
+        saveVocabBtn.disabled = true;
+        const saveBtnSpan = saveVocabBtn.querySelector("span");
+        if (saveBtnSpan) saveBtnSpan.textContent = "Lưu từ vựng";
+
+        saveVocabBtn.className =
+          "w-full text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-lg bg-slate-400";
+      }
+
+      function updateModalContent(data) {
+        document.getElementById("original-text").textContent = data.english;
+        document.getElementById("ipa-text").textContent = data.ipa || "N/A";
+
+        const translatedTextsContainer = document.getElementById(
+          "translated-texts"
+        );
+        translatedTextsContainer.innerHTML = "";
+
+        if (Array.isArray(data.translations) && data.translations.length > 0) {
+          data.translations.forEach((translation) => {
+            const p = document.createElement("p");
+            p.className = "text-xl text-blue-600 font-bold";
+            p.textContent = translation;
+            translatedTextsContainer.appendChild(p);
+          });
+        } else if (data.translation) {
+          const p = document.createElement("p");
+          p.className = "text-xl text-blue-600 font-bold";
+          p.textContent = data.translation;
+          translatedTextsContainer.appendChild(p);
+        } else {
+          const p = document.createElement("p");
+          p.className = "text-xl text-slate-500";
+          p.textContent = "Không tìm thấy bản dịch.";
+          translatedTextsContainer.appendChild(p);
+        }
+
+        document.getElementById("modal-loader").style.display = "none";
+        document.getElementById("modal-result").classList.remove("hidden");
+
+        checkIfWordExists(data.english).then((exists) => {
+          if (exists) {
+            const saveBtnSpan = saveVocabBtn.querySelector("span");
+            if (saveBtnSpan) saveBtnSpan.textContent = "Từ này đã tồn tại!";
+            saveVocabBtn.className =
+              "w-full text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-lg bg-amber-500 disabled:opacity-75 disabled:cursor-not-allowed";
+            saveVocabBtn.disabled = true;
+          } else if (!currentUserId) {
+            const saveBtnSpan = saveVocabBtn.querySelector("span");
+            if (saveBtnSpan) saveBtnSpan.textContent = "Đăng nhập để lưu từ!";
+            saveVocabBtn.className =
+              "w-full text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-lg bg-slate-400 disabled:opacity-75 disabled:cursor-not-allowed";
+            saveVocabBtn.disabled = true;
+          } else {
+            saveVocabBtn.disabled = false;
+            saveVocabBtn.className =
+              "w-full text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-lg bg-gradient-to-r from-blue-500 to-indigo-600 hover:shadow-lg hover:shadow-blue-500/50 hover:scale-105";
+          }
+        });
+
+        window.currentSelectionData = data;
+      }
+
+      async function checkIfWordExists(englishWord) {
+        if (!currentUserId) return false;
+        try {
+          const vocabRef = db
+            .collection("users")
+            .doc(currentUserId)
+            .collection("vocabulary");
+          const querySnapshot = await vocabRef
+            .where("english", "==", englishWord)
+            .get();
+          return !querySnapshot.empty;
+        } catch (error) {
+          console.error("Error checking word existence: ", error);
+          return false;
+        }
+      }
+
+      saveVocabBtn.addEventListener("click", async () => {
+        if (!currentUserId) {
+          alert("Bạn cần đăng nhập để lưu từ vựng!");
+          return;
+        }
+        if (
+          window.currentSelectionData &&
+          window.currentSelectionData.english
+        ) {
+          const saveBtnSpan = saveVocabBtn.querySelector("span");
+          try {
+            const vocabRef = db
+              .collection("users")
+              .doc(currentUserId)
+              .collection("vocabulary");
+            const dataToSave = {
+              english: window.currentSelectionData.english,
+              ipa: window.currentSelectionData.ipa,
+              translation: Array.isArray(
+                window.currentSelectionData.translations
+              )
+                ? window.currentSelectionData.translations[0]
+                : window.currentSelectionData.translation,
+            };
+            const docRef = await vocabRef.add(dataToSave);
+            if (saveBtnSpan) saveBtnSpan.textContent = "Đã lưu thành công!";
+            saveVocabBtn.className =
+              "w-full text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-lg bg-gradient-to-r from-emerald-500 to-green-600";
+            saveVocabBtn.disabled = true;
+          } catch (error) {
+            console.error("Error saving to Firestore: ", error);
+            if (saveBtnSpan) saveBtnSpan.textContent = "Lưu thất bại!";
+            saveVocabBtn.className =
+              "w-full text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 flex items-center justify-center gap-2 text-lg bg-red-500";
+            saveVocabBtn.disabled = false;
+          }
+        }
+      });
+
+      const CHATGPT_API_URL = "https://api-alpha-six-99.vercel.app/api/chat/";
+      const articleFrame = document.getElementById("article-frame");
+
+      async function getTranslationDetails(text) {
+        const prompt = `Analyze the following English text: "${text}". Provide a response ONLY in JSON format with three keys: "english" (the original English text), "ipa" (the International Phonetic Alphabet transcription), and "translations" (an array of Vietnamese translations or meanings, if multiple are relevant, otherwise a single string in an array). If the input is a single word, also include its common definitions. Example: {"english": "hello", "ipa": "/həˈloʊ/", "translations": ["xin chào", "chào hỏi", "lời chào"]}`;
+        try {
+          const response = await fetch(CHATGPT_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "gpt-3.5-turbo",
+              messages: [{ role: "user", content: prompt }],
+            }),
+          });
+          if (!response.ok) throw new Error(`API error: ${response.status}`);
+          const data = await response.json();
+          const jsonMatch = data.choices[0].message.content.match(/\{.*\}/s);
+          if (!jsonMatch) throw new Error("API did not return valid JSON.");
+          return JSON.parse(jsonMatch[0]);
+        } catch (error) {
+          console.error("Translation failed:", error);
+          return null;
+        }
+      }
+
+      function playAudio(text) {
+        if ("speechSynthesis" in window) {
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = "en-US";
+          window.speechSynthesis.speak(utterance);
+        } else {
+          alert("Trình duyệt của bạn không hỗ trợ phát âm.");
+        }
+      }
+
+      function hideTranslationModal() {
+        document
+          .getElementById("translation-modal")
+          .classList.remove("visible");
+      }
+
+      function handleTextSelection(event) {
+        const selection = articleFrame.contentWindow.getSelection();
+        const selectedText = selection.toString().trim().replace(/\s+/g, " ");
+
+        if (selectedText.length > 0 && selectedText.length < 200) {
+          showTranslationModal();
+          getTranslationDetails(selectedText).then((result) => {
+            if (result) {
+              updateModalContent(result);
+            } else {
+              alert("Dịch thất bại. Vui lòng thử lại.");
+              hideTranslationModal();
+            }
+          });
+        } else {
+          if (document.getElementById("translation-modal").classList.contains("visible")) {
+             hideTranslationModal();
+          }
+        }
+      }
+
+      // --- NEW: Generate 5 questions for the whole article ---
+      async function generateQuestionsForArticle(articleText) {
+        const prompt = `Analyze the following English article: "${articleText}". Generate exactly 5 unique multiple-choice reading comprehension questions that cover the main points of the entire article. Each question should have 4 options (A, B, C, D) and specify the single correct answer. Provide the response ONLY in JSON format as an array of objects. Each object must have keys: 'question' (string), 'options' (array of 4 strings corresponding to A, B, C, D), and 'correct_answer' (string, 'A', 'B', 'C', or 'D'). Ensure the questions test comprehension of the entire article.`;
+        try {
+          const response = await fetch(CHATGPT_API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              model: "gpt-3.5-turbo",
+              messages: [{ role: "user", content: prompt }],
+            }),
+          });
+          if (!response.ok)
+            throw new Error(`API error generating questions: ${response.status}`);
+          const data = await response.json();
+          const jsonMatch = data.choices[0].message.content.match(/\[.*\]/s);
+          if (!jsonMatch)
+            throw new Error("API did not return valid JSON for questions.");
+          return JSON.parse(jsonMatch[0]);
+        } catch (error) {
+          console.error("Question generation failed:", error);
+          return null;
+        }
+      }
+
+      function checkAndEnableGlobalCheckButton(container) {
+          const totalQuestions = container.querySelectorAll(".question-block").length;
+          let answeredQuestions = 0;
+          container.querySelectorAll(".question-block").forEach(qBlock => {
+              if (qBlock.querySelector('input[type="radio"]:checked')) {
+                  answeredQuestions++;
+              }
+          });
+          const checkAllBtn = container.querySelector(".check-all-answers-btn");
+          if (checkAllBtn) {
+              checkAllBtn.disabled = (answeredQuestions !== totalQuestions);
+              if (checkAllBtn.disabled) {
+                  checkAllBtn.classList.add("bg-gray-400");
+                  checkAllBtn.classList.remove("bg-blue-500", "hover:bg-blue-600");
+              } else {
+                   checkAllBtn.classList.remove("bg-gray-400");
+                   checkAllBtn.classList.add("bg-blue-500", "hover:bg-blue-600");
+              }
+          }
+      }
+
+      // --- MODIFIED: displayQuestions now takes questions and a single parentElement ---
+      function displayQuestions(questions, parentElement) {
+        if (!questions || questions.length === 0) return;
+
+        const questionsContainer =
+          parentElement.ownerDocument.createElement("div");
+        questionsContainer.className = "questions-container";
+
+        questions.forEach((q, qIndex) => {
+          const questionBlock =
+            parentElement.ownerDocument.createElement("div");
+          questionBlock.className = "question-block";
+          questionBlock.setAttribute("data-correct-answer", q.correct_answer);
+          questionBlock.setAttribute("data-question-index", qIndex);
+
+          const questionText =
+            parentElement.ownerDocument.createElement("p");
+          questionText.className = "question-text";
+          questionText.textContent = `Câu ${qIndex + 1}: ${q.question}`;
+          questionBlock.appendChild(questionText);
+
+          const optionsList =
+            parentElement.ownerDocument.createElement("ul");
+          optionsList.className = "options-list";
+
+          const optionLabels = ["A", "B", "C", "D"];
+          q.options.forEach((option, optIndex) => {
+            const optionItem =
+              parentElement.ownerDocument.createElement("li");
+            optionItem.className = "option-item";
+
+            const label =
+              parentElement.ownerDocument.createElement("label");
+            label.className = "option-label";
+
+            const radio =
+              parentElement.ownerDocument.createElement("input");
+            radio.type = "radio";
+            radio.name = `question-${qIndex}`; // Simpler name, unique for each of the 5 questions
+            radio.value = optionLabels[optIndex];
+            radio.onchange = () => {
+                checkAndEnableGlobalCheckButton(questionsContainer);
+                const feedbackMessage = questionBlock.querySelector(".feedback-message");
+                if (feedbackMessage) {
+                    feedbackMessage.textContent = "";
+                    feedbackMessage.className = "feedback-message";
+                }
+                questionBlock
+                    .querySelectorAll(".option-label")
+                    .forEach((lbl) => {
+                    lbl.classList.remove(
+                        "correct-option-style",
+                        "incorrect-option-style"
+                    );
+                });
+            };
+
+            label.appendChild(radio);
+            label.appendChild(
+              parentElement.ownerDocument.createTextNode(
+                `${optionLabels[optIndex]}. ${option}`
+              )
+            );
+
+            optionItem.appendChild(label);
+            optionsList.appendChild(optionItem);
+          });
+          questionBlock.appendChild(optionsList);
+
+          const feedbackDiv =
+            parentElement.ownerDocument.createElement("div");
+          feedbackDiv.className = "feedback-message";
+          questionBlock.appendChild(feedbackDiv);
+
+          questionsContainer.appendChild(questionBlock);
+        });
+
+        const checkAllAnswersButton = parentElement.ownerDocument.createElement("button");
+        checkAllAnswersButton.className = "check-all-answers-btn mt-4 px-6 py-3 text-white font-bold rounded-lg transition-all duration-200 disabled:opacity-75 disabled:cursor-not-allowed bg-gray-400";
+        checkAllAnswersButton.textContent = "Kiểm tra tất cả đáp án";
+        checkAllAnswersButton.disabled = true;
+        checkAllAnswersButton.onclick = () => {
+            questionsContainer.querySelectorAll(".question-block").forEach((qBlock) => {
+                const selectedOption = qBlock.querySelector('input[type="radio"]:checked');
+                const feedbackMessage = qBlock.querySelector(".feedback-message");
+                const correctAnswer = qBlock.getAttribute("data-correct-answer");
+
+                qBlock.querySelectorAll(".option-label").forEach((label) => {
+                    label.classList.remove("correct-option-style", "incorrect-option-style");
+                });
+
+                if (selectedOption) {
+                    const selectedValue = selectedOption.value;
+                    const correctLabel = qBlock.querySelector(`input[value="${correctAnswer}"]`).closest("label");
+                    correctLabel.classList.add("correct-option-style");
+
+                    if (selectedValue === correctAnswer) {
+                        feedbackMessage.textContent = "Chính xác!";
+                        feedbackMessage.className = "feedback-message correct";
+                    } else {
+                        const selectedLabel = selectedOption.closest("label");
+                        selectedLabel.classList.add("incorrect-option-style");
+                        feedbackMessage.textContent = `Sai rồi. Đáp án đúng là ${correctAnswer}.`;
+                        feedbackMessage.className = "feedback-message incorrect";
+                    }
+                } else {
+                    feedbackMessage.textContent = "Chưa chọn đáp án.";
+                    feedbackMessage.className = "feedback-message";
+                }
+            });
+            checkAllAnswersButton.disabled = true;
+            checkAllAnswersButton.classList.add("bg-gray-400");
+            checkAllAnswersButton.classList.remove("bg-blue-500", "hover:bg-blue-600");
+        };
+        questionsContainer.appendChild(checkAllAnswersButton);
+
+        parentElement.appendChild(questionsContainer); // Append to the main article content
+      }
+
+      // Toggle questions visibility functionality
+      const toggleQuestionsBtn = document.getElementById("toggle-questions-visibility");
+      const toggleQuestionsIcon = toggleQuestionsBtn.querySelector("i");
+      let areQuestionsVisible = true; // Initial state: questions are visible
+
+      function toggleQuestionsVisibility() {
+          const allQuestionContainers = articleFrame.contentDocument.querySelectorAll(".questions-container");
+          allQuestionContainers.forEach(container => {
+              if (areQuestionsVisible) {
+                  container.style.display = "none";
+              } else {
+                  container.style.display = "block";
+              }
+          });
+          areQuestionsVisible = !areQuestionsVisible;
+          if (areQuestionsVisible) {
+              toggleQuestionsIcon.className = "fas fa-eye-slash"; // Hide icon
+              toggleQuestionsBtn.title = "Ẩn câu hỏi đọc hiểu";
+          } else {
+              toggleQuestionsIcon.className = "fas fa-eye"; // Show icon
+              toggleQuestionsBtn.title = "Hiện câu hỏi đọc hiểu";
+          }
+      }
+
+      function initialize() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const articleFile = urlParams.get("article");
+        if (articleFile) {
+          articleFrame.src = articleFile;
+        } else {
+          document.body.innerHTML = `<div class="text-center p-10"><h1>Lỗi</h1><p>Không tìm thấy bài báo. Vui lòng quay lại.</p><a href="index.html" class="text-blue-500">Quay lại</a></div>`;
+          return;
+        }
+
+        articleFrame.addEventListener("load", async () => {
+          try {
+            const frameDoc = articleFrame.contentDocument;
+            if (!frameDoc) throw new Error("Cannot access iframe content.");
+
+            // Event listener for mobile/desktop text selection
+            frameDoc.addEventListener("selectionchange", handleTextSelection);
+            // Event listener to hide modal when clicking outside selection
+            frameDoc.addEventListener("mousedown", (e) => {
+                const selection = articleFrame.contentWindow.getSelection();
+                if (!selection.toString() || !selection.containsNode(e.target)) {
+                    if (document.getElementById("translation-modal").classList.contains("visible")) {
+                        hideTranslationModal();
+                    }
+                }
+            });
+
+            // Extract all readable text from the article for question generation
+            // Filter out script and style tags to get clean text content
+            let fullArticleText = '';
+            const bodyChildren = Array.from(frameDoc.body.children);
+            bodyChildren.forEach(child => {
+                if (child.tagName !== 'SCRIPT' && child.tagName !== 'STYLE') {
+                    fullArticleText += child.textContent + '\n';
+                }
+            });
+            fullArticleText = fullArticleText.trim();
+
+
+            const questionsLoader = document.getElementById("questions-loader");
+            questionsLoader.classList.remove("hidden"); // Show loader
+
+            let questions = null;
+            if (fullArticleText.length > 200) { // Only generate questions if article is long enough
+                questions = await generateQuestionsForArticle(fullArticleText);
+            } else {
+                console.warn("Article too short for question generation.");
+            }
+
+            questionsLoader.classList.add("hidden"); // Hide loader
+
+            if (questions && questions.length > 0) {
+                displayQuestions(questions, frameDoc.body); // Display all 5 questions at the end of the article body
+            } else {
+                console.log("No questions generated or article was too short.");
+            }
+
+          } catch (e) {
+            console.error("Error accessing iframe or generating questions:", e);
+            document.getElementById("questions-loader").classList.add("hidden");
+          }
+        });
+
+        document
+          .getElementById("close-modal")
+          .addEventListener("click", hideTranslationModal);
+        document
+          .getElementById("translation-modal")
+          .addEventListener("click", (e) => {
+            if (e.target === e.currentTarget) hideTranslationModal();
+          });
+        document
+          .getElementById("play-audio-btn")
+          .addEventListener("click", () => {
+            if (window.currentSelectionData.english)
+              playAudio(window.currentSelectionData.english);
+          });
+
+        toggleQuestionsBtn.addEventListener("click", toggleQuestionsVisibility);
+      }
+      initialize();
+    </script>
+  </body>
+</html>

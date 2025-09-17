@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chọn Phương Pháp Học |
+Vocabulary Manager</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <style>
+      /* --- MODIFIED: Softer Design System from vocabulary.html --- */
+      
+      /* Chỉ áp dụng cho thiết bị cảm ứng để không ảnh hưởng keyboard users */
+@media (pointer: coarse) {
+  * {
+    -webkit-tap-highlight-color: transparent; /* iOS, Chrome mobile */
+    -webkit-touch-callout: none;              /* tắt menu giữ chạm (iOS) nếu cần */
+  }
+}
+
+      :root {
+        --bg: #ffffff;
+--bg-soft: #f9f9f9;
+        --text: #343a40;
+        --text-muted: #6c757d;
+        --border: #e9ecef;
+        --radius: 14px;
+        --shadow: 0 8px 24px rgba(16, 16, 16, 0.05);
+        --accent: #007bff; /* Changed to blue */
+--success: #28a745;
+        --error: #dc3545;
+        --warning: #ffc107;
+        font-synthesis: none;
+        --primary-color: var(--accent);
+}
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+transform: translateY(0);
+        }
+      }
+
+      * {
+        margin: 0;
+padding: 0;
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      body {
+        background: var(--bg);
+color: var(--text);
+        min-height: 100vh;
+        padding: 2rem;
+        animation: fadeIn 0.5s ease-out;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+}
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+}
+
+      .header {
+        display: flex;
+        justify-content: flex-start;
+align-items: center;
+        margin-bottom: 2rem;
+      }
+
+      /* --- MODIFIED: Back Button Style --- */
+      .back-button {
+        width: 44px;
+height: 44px;
+        border-radius: 10px;
+        background: var(--bg);
+        color: var(--text-muted);
+        text-decoration: none;
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+border: 1px solid var(--border);
+        transition: all 0.3s ease;
+      }
+
+      .back-button:hover {
+        background: var(--bg-soft);
+color: var(--text);
+        border-color: #ddd;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+      .back-button i {
+        font-size: 1.3rem;
+}
+
+      /* --- MODIFIED: Folder Info Card Style --- */
+      .folder-info {
+        background: var(--bg-soft);
+padding: 1.75rem;
+        border-radius: var(--radius);
+        margin-bottom: 2rem;
+        border: 1px solid var(--border);
+}
+
+      .folder-info h2 {
+        color: var(--text);
+        margin-bottom: 0.75rem;
+font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+
+      .folder-stats {
+        display: flex;
+gap: 1.5rem;
+        color: var(--text-muted);
+        font-size: 0.95rem;
+      }
+
+      .folder-stats span {
+        display: flex;
+align-items: center;
+        gap: 0.5rem;
+      }
+
+      .folder-stats i {
+        color: var(--text-muted);
+font-size: 1rem;
+      }
+
+      .options-grid {
+        display: grid;
+grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+
+      /* --- MODIFIED: Study Option Card Style --- */
+      .study-option {
+        background: var(--bg);
+border-radius: var(--radius);
+        padding: 2rem;
+        text-align: center;
+        border: 1px solid var(--border);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+        cursor: pointer;
+transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+}
+
+      .study-option:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow);
+border-color: #adb5bd;
+      }
+
+      .option-icon {
+        font-size: 2.5rem;
+margin-bottom: 1.25rem;
+        color: var(--primary-color);
+        transition: all 0.3s ease;
+      }
+      
+      .study-option:hover .option-icon {
+        color: #0056b3; /* Changed to a darker blue */
+}
+
+      .option-title {
+        font-size: 1.35rem;
+        font-weight: 600;
+margin-bottom: 0.75rem;
+        color: var(--text);
+      }
+
+      .option-description {
+        color: var(--text-muted);
+font-size: 0.95rem;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 1.25rem;
+}
+
+        .header {
+          margin-bottom: 1.5rem;
+}
+
+        .options-grid {
+          grid-template-columns: 1fr;
+gap: 1.25rem;
+        }
+
+        .study-option {
+          padding: 1.5rem;
+}
+
+        .option-icon {
+          font-size: 2.25rem;
+}
+
+        .option-title {
+          font-size: 1.2rem;
+}
+
+        .option-description {
+          font-size: 0.9rem;
+}
+
+        .folder-info {
+          padding: 1.25rem;
+}
+
+        .folder-info h2 {
+          font-size: 1.75rem;
+}
+
+        .folder-stats {
+          flex-direction: column;
+gap: 0.75rem;
+          font-size: 0.9rem;
+        }
+
+        .back-button {
+          width: 40px;
+height: 40px;
+        }
+
+        .back-button i {
+          font-size: 1.1rem;
+}
+      }
+
+      @media (max-width: 480px) {
+        body {
+          padding: 1rem;
+}
+
+        .folder-info h2 {
+          font-size: 1.5rem;
+}
+
+        .folder-stats {
+          font-size: 0.85rem;
+}
+
+        .study-option {
+          padding: 1.25rem;
+}
+
+
+        .option-icon {
+          font-size: 2rem;
+}
+
+        .option-title {
+          font-size: 1.1rem;
+}
+
+        .option-description {
+          font-size: 0.85rem;
+}
+
+        .back-button {
+          width: 36px;
+height: 36px;
+        }
+
+        .back-button i {
+          font-size: 1rem;
+}
+      }
+</style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <a href="vocabulary.html" class="back-button">
+          <i class="fas fa-arrow-left"></i>
+        </a>
+      </div>
+
+      <div class="folder-info">
+        <h2 id="folderName">Loading...</h2>
+        <div class="folder-stats">
+          <span
+       
+     ><i class="fas fa-book"></i>
+            <span id="wordCount">Số từ: ...</span></span
+          >
+          <span
+            ><i class="fas fa-clock"></i>
+            <span id="lastReviewed">Lần ôn tập cuối: ...</span></span
+          >
+        </div>
+      </div>
+
+   
+   <div class="options-grid">
+        <div class="study-option" onclick="navigateToStudy('flashcards')">
+          <i class="fas fa-clone option-icon"></i>
+          <h3 class="option-title">Flashcards</h3>
+          <p class="option-description">
+            Học với thẻ ghi nhớ.
+Xem từ vựng và nghĩa, kèm hình ảnh và âm thanh.
+</p>
+        </div>
+
+        <div class="study-option" onclick="navigateToStudy('quiz')">
+          <i class="fas fa-list-check option-icon"></i>
+          <h3 class="option-title">Trắc nghiệm</h3>
+          <p class="option-description">
+            Kiểm tra kiến thức với các câu hỏi trắc nghiệm về từ vựng.
+</p>
+        </div>
+
+        <div class="study-option" onclick="navigateToStudy('matching')">
+          <i class="fas fa-puzzle-piece option-icon"></i>
+          <h3 class="option-title">Đoán từ</h3>
+          <p class="option-description">
+            Nhập chính xác từ tiếng anh.
+</p>
+        </div>
+
+     
+
+        <div class="study-option" onclick="navigateToStudy('listening')">
+          <i class="fas fa-headphones option-icon"></i>
+       
+   <h3 class="option-title">Luyện nghe</h3>
+          <p class="option-description">
+            Nghe phát âm và chọn từ vựng chính xác.
+</p>
+        </div>
+      </div>
+    </div>
+
+   <script>
+    // *** BẮT ĐẦU TÍCH HỢP FIREBASE ***
+    const firebaseScripts = [
+        "https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js",
+        "https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js",
+        "https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"
+    ];
+let scriptLoadedCount = 0;
+    firebaseScripts.forEach(src => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = false;
+        script.onload = () => {
+            scriptLoadedCount++;
+            if (scriptLoadedCount === firebaseScripts.length) {
+                initializeApp();
+       
+     }
+        };
+        document.head.appendChild(script);
+    });
+let db, auth, currentUser, currentFolderId;
+
+    function initializeApp() {
+        const firebaseConfig = {
+            apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg",
+            authDomain: "wordwhizzy.firebaseapp.com",
+            projectId: "wordwhizzy",
+            storageBucket: "wordwhizzy.appspot.com",
+            messagingSenderId: "179575783469",
+            appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4",
+    
+        measurementId: "G-XPFQ8PCTRE"
+        };
+if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+}
+        db = firebase.firestore();
+        auth = firebase.auth();
+auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                main();
+            } else {
+                window.location.href = 'login.html';
+            }
+      
+  });
+    }
+
+    async function main() {
+        const urlParams = new URLSearchParams(window.location.search);
+currentFolderId = urlParams.get("id");
+
+        if (!currentFolderId) {
+            alert("Không tìm thấy thông tin thư mục!");
+window.location.href = "vocabulary.html";
+            return;
+        }
+
+        // Kiểm tra sự tồn tại của bộ thẻ trong Firestore
+        const flashcardsRef = db.collection('users').doc(currentUser.uid).collection('flashcards').doc(currentFolderId);
+const doc = await flashcardsRef.get();
+
+        if (!doc.exists) {
+            alert("Vui lòng nhập từ vựng trước khi học!");
+window.location.href = `vocabulary-input.html?id=${currentFolderId}`;
+            return;
+        }
+
+        loadFolderInfo();
+}
+
+    // THAY ĐỔI: Tải thông tin thư mục từ Firestore
+    async function loadFolderInfo() {
+        const userDocRef = db.collection('users').doc(currentUser.uid);
+const userDoc = await userDocRef.get();
+        if (!userDoc.exists) {
+            console.error("Không tìm thấy dữ liệu người dùng!");
+return;
+        }
+
+        const foldersData = userDoc.data().folders;
+        let folder = null;
+for (let dayKey in foldersData) {
+            if (Array.isArray(foldersData[dayKey])) {
+                const foundFolder = foldersData[dayKey].find(f => f.id === parseInt(currentFolderId));
+if (foundFolder) {
+                    folder = foundFolder;
+break;
+                }
+            }
+        }
+
+        if (folder) {
+            document.getElementById("folderName").textContent = folder.name;
+document.getElementById("wordCount").textContent = `Số từ: ${folder.wordCount || 0}`;
+            document.getElementById("lastReviewed").textContent = `Lần ôn tập cuối: ${folder.lastReviewed || "Chưa ôn tập"}`;
+} else {
+            console.error("Không tìm thấy thông tin thư mục trong dữ liệu người dùng.");
+document.getElementById("folderName").textContent = "Không tìm thấy thư mục";
+        }
+    }
+
+    function navigateToStudy(mode) {
+        const pages = {
+            flashcards: "flashcards.html", quiz: "quiz.html", matching: "word-puzzle.html",
+            writing: "sentence-builder.html", review: "review.html", listening: "listen_word.html",
+        };
+const page = pages[mode];
+        if (page) {
+            window.location.href = `${page}?id=${currentFolderId}&mode=${mode}`;
+}
+    }
+</script>
+  </body>
+</html>

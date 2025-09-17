@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Danh sách từ vựng</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f8fafc;
+      }
+    </style>
+  </head>
+  <body class="text-slate-700">
+    <header class="bg-white/80 backdrop-blur-lg sticky top-0 z-40 shadow-sm">
+      <div
+        class="container mx-auto px-6 py-4 flex justify-between items-center"
+      >
+        <h1 class="text-2xl font-extrabold text-emerald-600 flex items-center">
+          <span class="text-white bg-emerald-500 rounded-lg p-2 mr-3"
+            ><i class="fas fa-star"></i
+          ></span>
+          Từ vựng của bạn
+        </h1>
+        <a
+          href="bao.html"
+          class="bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-full py-2 px-5 transition-transform hover:scale-105 flex items-center gap-2"
+        >
+          <i class="fas fa-arrow-left"></i> Quay lại
+        </a>
+      </div>
+    </header>
+
+    <main class="container mx-auto p-6">
+      <div id="controls" class="flex justify-end mb-6">
+        <button
+          id="clear-vocab-btn"
+          class="bg-red-500 text-white hover:bg-red-600 font-semibold py-2 px-5 rounded-full transition-all duration-300 flex items-center gap-2 hover:shadow-lg hover:shadow-red-500/30 transform hover:-translate-y-0.5"
+        >
+          <i class="fas fa-trash-alt"></i> Xóa tất cả
+        </button>
+      </div>
+      <div id="vocab-list" class="space-y-5"></div>
+    </main>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+
+    <script>
+      // Your web app's Firebase configuration
+      const firebaseConfig = {
+        apiKey: "AIzaSyAm-p5xIzMi7Rkt6y9TzODJLFjdpLKBIlg", // Replace with your actual API key
+        authDomain: "wordwhizzy.firebaseapp.com",
+        projectId: "wordwhizzy",
+        storageBucket: "wordwhizzy.firebasestorage.app",
+        messagingSenderId: "179575783469",
+        appId: "1:179575783469:web:30d0ae652af3cfda4bb8a4",
+        measurementId: "G-XPFQ8PCTRE",
+      };
+
+      // Initialize Firebase
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      const db = firebase.firestore();
+      const auth = firebase.auth(); // Get auth instance for user check
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const vocabListContainer = document.getElementById("vocab-list");
+        const clearBtn = document.getElementById("clear-vocab-btn");
+        const controlsContainer = document.getElementById("controls");
+
+        let userId = null;
+
+        // Get UID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        userId = urlParams.get("uid");
+
+        if (!userId) {
+          // Fallback if UID not in URL, try to get current user from auth
+          auth.onAuthStateChanged((user) => {
+            if (user) {
+              userId = user.uid;
+              renderVocabulary();
+            } else {
+              // User not logged in, show empty state for non-authenticated users
+              showEmptyVocabularyState();
+            }
+          });
+        }
+
+        async function renderVocabulary() {
+          if (!userId) {
+            showEmptyVocabularyState();
+            return;
+          }
+
+          vocabListContainer.innerHTML = "";
+          try {
+            const vocabRef = db
+              .collection("users")
+              .doc(userId)
+              .collection("vocabulary");
+            const snapshot = await vocabRef.orderBy("english").get(); // Order by English word
+            const vocabulary = snapshot.docs.map((doc) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+
+            if (vocabulary.length === 0) {
+              showEmptyVocabularyState();
+              return;
+            }
+
+            controlsContainer.style.display = "flex";
+            vocabulary.forEach((item) => {
+              const card = document.createElement("div");
+              card.className =
+                "bg-white p-5 rounded-2xl shadow-md border flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-300 hover:shadow-xl hover:border-blue-400 hover:-translate-y-2";
+              card.innerHTML = `
+                        <div class="flex-grow">
+                            <div class="flex items-center gap-4 mb-2">
+                                <p class="text-3xl font-extrabold text-slate-800">${
+                                  item.english
+                                }</p>
+                                <button class="play-audio-btn text-slate-400 hover:text-blue-500 transition-transform hover:scale-125" data-text="${
+                                  item.english
+                                }" title="Play audio"><i class="fas fa-volume-up fa-lg"></i></button>
+                            </div>
+                            <p class="text-slate-500 bg-slate-100 rounded-md px-2 py-1 inline-block text-sm font-medium">${
+                              item.ipa || "N/A"
+                            }</p>
+                            <p class="text-2xl text-emerald-600 font-bold mt-3">${
+                              item.translation
+                            }</p>
+                        </div>
+                        <button class="remove-item-btn bg-slate-100 text-slate-400 hover:bg-red-500 hover:text-white w-10 h-10 rounded-full transition-all duration-300 flex-shrink-0" data-doc-id="${
+                          item.id
+                        }" title="Xóa từ này">
+                           <i class="fas fa-trash-alt mx-auto"></i>
+                        </button>`;
+              vocabListContainer.appendChild(card);
+            });
+          } catch (error) {
+            console.error("Error fetching vocabulary: ", error);
+            showEmptyVocabularyState(
+              "Đã xảy ra lỗi khi tải từ vựng. Vui lòng thử lại."
+            );
+          }
+        }
+
+        function showEmptyVocabularyState(
+          message = "Hãy bắt đầu đọc và lưu những từ mới để làm đầy kho báu này nhé!"
+        ) {
+          controlsContainer.style.display = "none";
+          vocabListContainer.innerHTML = `
+            <div class="text-center py-20 px-6 bg-white rounded-2xl shadow-lg border">
+                <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExNmtvaG5ya2I3aWVxZ3JxM2hodnI2ejY5aDZ0ZDA2d2Q0dDBiOWp2cSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/14uQ3cOFteDaU/giphy.gif" alt="Empty" class="mx-auto w-48 h-48 mb-4">
+                <h2 class="text-2xl font-bold text-slate-700">Kho từ vựng trống trơn</h2>
+                <p class="text-slate-500 mt-2">${message}</p>
+            </div>`;
+        }
+
+        function playAudio(text) {
+          if ("speechSynthesis" in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = "en-US";
+            window.speechSynthesis.speak(utterance);
+          }
+        }
+
+        vocabListContainer.addEventListener("click", async (e) => {
+          const playBtn = e.target.closest(".play-audio-btn");
+          if (playBtn) {
+            playAudio(playBtn.dataset.text);
+          }
+
+          const removeBtn = e.target.closest(".remove-item-btn");
+          if (removeBtn) {
+            if (!userId) return; // Cannot remove if no user ID
+
+            const docId = removeBtn.dataset.docId;
+            if (confirm("Bạn có chắc chắn muốn xóa từ này không?")) {
+              try {
+                await db
+                  .collection("users")
+                  .doc(userId)
+                  .collection("vocabulary")
+                  .doc(docId)
+                  .delete();
+                renderVocabulary(); // Re-render the list
+              } catch (error) {
+                console.error("Error removing document: ", error);
+                alert("Đã xảy ra lỗi khi xóa từ. Vui lòng thử lại.");
+              }
+            }
+          }
+        });
+
+        clearBtn.addEventListener("click", async () => {
+          if (!userId) return; // Cannot clear if no user ID
+
+          if (
+            confirm(
+              "Bạn có chắc chắn muốn xóa TOÀN BỘ từ vựng đã lưu không? Hành động này không thể hoàn tác."
+            )
+          ) {
+            try {
+              const vocabRef = db
+                .collection("users")
+                .doc(userId)
+                .collection("vocabulary");
+              const snapshot = await vocabRef.get();
+              const batch = db.batch(); // Use a batch for multiple deletions
+              snapshot.docs.forEach((doc) => {
+                batch.delete(doc.ref);
+              });
+              await batch.commit();
+              renderVocabulary(); // Re-render the list
+            } catch (error) {
+              console.error("Error clearing vocabulary: ", error);
+              alert("Đã xảy ra lỗi khi xóa tất cả từ. Vui lòng thử lại.");
+            }
+          }
+        });
+
+        // Initial render based on UID from URL or auth state
+        if (userId) {
+          renderVocabulary();
+        } else {
+          // If UID is not present in URL, wait for auth state to be confirmed
+          // This is handled by the onAuthStateChanged listener at the top
+        }
+      });
+    </script>
+  </body>
+</html>
